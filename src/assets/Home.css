@@ -1,0 +1,435 @@
+/* Reset CSS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo img {
+  height: 40px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: rgb(20, 93, 171);
+  font-weight: bold;
+}
+
+.login-btn {
+  padding: 8px 15px;
+  border: 2px solid rgb(26, 34, 183);
+  color: #1c4bc2;
+  background: white;
+  cursor: pointer;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.login-btn:hover {
+  background: rgb(21, 34, 180);
+  color: white;
+}
+
+/* Banner */
+.banner {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.banner img {
+  width: 90%;
+  max-width: 1200px;
+  border-radius: 10px;
+}
+/* Đặt lịch */
+.booking {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px auto;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.booking-box {
+  background: #0a2a7c;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 60%;
+}
+
+.booking-box h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.booking-box p {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.booking-form {
+  display: flex;
+}
+
+.booking-form input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.booking-form button {
+  padding: 10px 15px;
+  background: #a4e0ff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Đánh giá */
+.rating-box {
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  width: 35%;
+}
+.rating-box a {
+  text-decoration: none;
+  color: inherit; /* Giữ nguyên màu chữ */
+}
+.rating-box a:hover {
+  text-decoration: none; /* Đảm bảo khi hover cũng không có gạch chân */
+}
+.rating-box h3 {
+  font-size: 16px;
+  margin-bottom: 5px;
+  text-decoration: none;
+}
+
+.rating-box p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.stars {
+  font-size: 20px;
+  color: #ffcc00;
+}
+
+/* Dịch vụ tóc */
+.services {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+.services h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #0a2a7c;
+  border-left: 4px solid #0a2a7c;
+  padding-left: 10px;
+}
+
+.service-list {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.service-item {
+  background: white;
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+.service-item img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.service-item h3 {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.service-item p {
+  color: #666;
+  font-size: 14px;
+}
+
+.service-item a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #0a2a7c;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.service-item a:hover {
+  text-decoration: underline;
+}
+/* SPA & RELAX */
+.spa-relax {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+
+.spa-relax h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #0a2a7c;
+  border-left: 4px solid #0a2a7c;
+  padding-left: 10px;
+}
+
+.spa-list {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.spa-item {
+  background: white;
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
+}
+
+.spa-item img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.spa-item h3 {
+  margin: 10px 0;
+  font-size: 16px;
+}
+
+.spa-item p {
+  color: #666;
+  font-size: 14px;
+}
+
+.spa-item a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #0a2a7c;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.spa-item a:hover {
+  text-decoration: underline;
+}
+
+/* SHINE COLLECTION */
+.shine-collection {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+
+.shine-collection h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #0a2a7c;
+  border-left: 4px solid #0a2a7c;
+  padding-left: 10px;
+}
+
+.shine-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 3 cột bằng nhau */
+  gap: 20px;
+}
+
+.shine-item {
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 250px; /* Đảm bảo chiều cao đồng đều */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shine-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Giữ tỷ lệ hình ảnh và lấp đầy khung */
+}
+
+.shine-banner {
+  grid-column: span 3; /* Ảnh lớn trên cùng chiếm toàn bộ chiều rộng */
+  height: auto; /* Cho phép ảnh lớn co giãn theo nội dung */
+}
+.shine-item:hover, .service-item:hover, .spa-item:hover {
+  transform: scale(1.05); /* Phóng to nhẹ */
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+/* Top Thợ Cắt Tóc Trong Tháng */
+.top-barbers {
+  width: 90%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+.top-barbers-header h2 {
+  font-size: 20px;
+  color: #0a2a7c;
+  border-left: 4px solid #0a2a7c;
+  padding-left: 10px;
+  display: inline-block; /* Giữ nguyên kích thước theo nội dung */
+  margin-bottom: 5px; /* Tạo khoảng cách với mô tả */
+}
+
+.top-barbers-header p {
+  font-size: 16px;
+  color: #0a2a7c;
+  margin-top: 5px; /* Tạo khoảng cách với tiêu đề */
+}
+
+/* Danh sách thợ */
+.barber-list {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.barber-item {
+  background: white;
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  max-width: 300px;
+}
+
+.barber-item img {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  height: 350px;
+}
+
+.barber-item h3 {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.barber-item p {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Hover hiệu ứng */
+.barber-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+/* SHINE MEMBER */
+.shine-member {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1200px;
+  margin: 30px auto;
+  text-align: left;
+}
+
+.shine-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #002060;
+  padding-bottom: 5px;
+  border-left: 4px solid #002060;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.shine-description {
+  font-size: 14px;
+  color: #211e7c;
+  margin-bottom: 20px;
+}
+
+.shine-banner img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+/* Footer */
+.footer {
+  background-color: #002060;
+  color: #fff;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 180px;
+  margin: 10px;
+  text-align: left;
+}
+
+.footer-column p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.footer-column a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer-column a:hover {
+  text-decoration: underline;
+}
+
+.app-links img,
+.social-links img {
+  width: 30px;
+  margin-right: 5px;
+}
