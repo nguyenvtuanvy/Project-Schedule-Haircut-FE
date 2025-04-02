@@ -60,13 +60,17 @@ nav ul li a {
   max-width: 1200px;
   border-radius: 10px;
 }
-/* Đặt lịch */
+
+/* Booking & Rating */
+.booking, .rating-box, .services, .spa-relax, .shine-collection, .top-barbers, .shine-member {
+  width: 80%;
+  max-width: 1200px;
+  margin: 30px auto;
+}
+
 .booking {
   display: flex;
   justify-content: space-between;
-  margin: 30px auto;
-  width: 90%;
-  max-width: 1200px;
 }
 
 .booking-box {
@@ -75,11 +79,13 @@ nav ul li a {
   padding: 20px;
   border-radius: 10px;
   width: 60%;
+  padding-top: 40px;
 }
 
 .booking-box h2 {
   font-size: 18px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .booking-box p {
@@ -108,24 +114,25 @@ nav ul li a {
   font-weight: bold;
 }
 
-/* Đánh giá */
 .rating-box {
   background: #f8f8f8;
   padding: 20px;
   border-radius: 10px;
   width: 35%;
 }
+
 .rating-box a {
   text-decoration: none;
-  color: inherit; /* Giữ nguyên màu chữ */
+  color: inherit;
 }
+
 .rating-box a:hover {
-  text-decoration: none; /* Đảm bảo khi hover cũng không có gạch chân */
+  text-decoration: none;
 }
+
 .rating-box h3 {
   font-size: 16px;
   margin-bottom: 5px;
-  text-decoration: none;
 }
 
 .rating-box p {
@@ -138,27 +145,33 @@ nav ul li a {
   color: #ffcc00;
 }
 
-/* Dịch vụ tóc */
-.services {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto;
-}
-.services h2 {
-  font-size: 18px;
-  margin-bottom: 15px;
+/* Section Titles */
+.services h2, .spa-relax h2, .shine-collection h2, .top-barbers-header h2, .shine-title {
+  padding-top: 10px;
+  font-size: 20px;
   color: #0a2a7c;
-  border-left: 4px solid #0a2a7c;
-  padding-left: 10px;
+  margin-bottom: 15px;
 }
 
-.service-list {
+.top-barbers-header h2, .shine-title{
+    margin-bottom: 5px;
+}
+
+/* Wrapper cho tiêu đề section */
+.title-wrapper {
+    border-left: 4px solid #0a2a7c;
+    padding-left: 10px;
+    display: inline-block;
+}
+
+/* Service & Spa Items */
+.service-list, .spa-list {
   display: flex;
   gap: 20px;
   justify-content: space-between;
 }
 
-.service-item {
+.service-item, .spa-item {
   background: white;
   text-align: center;
   padding: 15px;
@@ -167,22 +180,22 @@ nav ul li a {
   flex: 1;
 }
 
-.service-item img {
+.service-item img, .spa-item img {
   width: 100%;
   border-radius: 10px;
 }
 
-.service-item h3 {
+.service-item h3, .spa-item h3 {
   margin: 10px 0;
   font-size: 16px;
 }
 
-.service-item p {
+.service-item p, .spa-item p {
   color: #666;
   font-size: 14px;
 }
 
-.service-item a {
+.service-item a, .spa-item a {
   display: inline-block;
   margin-top: 10px;
   color: #0a2a7c;
@@ -191,85 +204,19 @@ nav ul li a {
   text-decoration: none;
 }
 
-.service-item a:hover {
-  text-decoration: underline;
-}
-/* SPA & RELAX */
-.spa-relax {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto;
-}
-
-.spa-relax h2 {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #0a2a7c;
-  border-left: 4px solid #0a2a7c;
-  padding-left: 10px;
-}
-
-.spa-list {
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-}
-
-.spa-item {
-  background: white;
-  text-align: center;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  flex: 1;
-}
-
-.spa-item img {
-  width: 100%;
-  border-radius: 10px;
-}
-
-.spa-item h3 {
-  margin: 10px 0;
-  font-size: 16px;
-}
-
-.spa-item p {
-  color: #666;
-  font-size: 14px;
-}
-
-.spa-item a {
-  display: inline-block;
-  margin-top: 10px;
-  color: #0a2a7c;
-  font-size: 14px;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.spa-item a:hover {
+.service-item a:hover, .spa-item a:hover {
   text-decoration: underline;
 }
 
-/* SHINE COLLECTION */
-.shine-collection {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto;
+.service-item:hover, .spa-item:hover, .shine-item:hover, .top-barbers .barber-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-.shine-collection h2 {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #0a2a7c;
-  border-left: 4px solid #0a2a7c;
-  padding-left: 10px;
-}
-
+/* Shine Collection */
 .shine-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);  /* 3 cột bằng nhau */
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
@@ -277,7 +224,7 @@ nav ul li a {
   overflow: hidden;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 250px; /* Đảm bảo chiều cao đồng đều */
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,47 +233,34 @@ nav ul li a {
 .shine-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Giữ tỷ lệ hình ảnh và lấp đầy khung */
+  object-fit: cover;
 }
 
 .shine-banner {
-  grid-column: span 3; /* Ảnh lớn trên cùng chiếm toàn bộ chiều rộng */
-  height: auto; /* Cho phép ảnh lớn co giãn theo nội dung */
+  grid-column: span 3;
+  height: auto;
 }
-.shine-item:hover, .service-item:hover, .spa-item:hover {
-  transform: scale(1.05); /* Phóng to nhẹ */
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-}
-/* Top Thợ Cắt Tóc Trong Tháng */
+
+/* Top Barbers */
 .top-barbers {
-  width: 90%;
-  max-width: 1200px;
-  margin: 30px auto;
-}
-.top-barbers-header h2 {
-  font-size: 20px;
-  color: #0a2a7c;
-  border-left: 4px solid #0a2a7c;
-  padding-left: 10px;
-  display: inline-block; /* Giữ nguyên kích thước theo nội dung */
-  margin-bottom: 5px; /* Tạo khoảng cách với mô tả */
+    max-width: 1800px;
 }
 
 .top-barbers-header p {
   font-size: 16px;
   color: #0a2a7c;
-  margin-top: 5px; /* Tạo khoảng cách với tiêu đề */
+  margin-top: 5px;
 }
 
-/* Danh sách thợ */
-.barber-list {
+.top-barbers .barber-list {
   margin-top: 20px;
   display: flex;
   gap: 20px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-.barber-item {
+.top-barbers .barber-item {
   background: white;
   text-align: center;
   padding: 15px;
@@ -334,50 +268,54 @@ nav ul li a {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   flex: 1;
   max-width: 300px;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+  margin: 10px;
 }
 
-.barber-item img {
+.top-barbers .barber-item img {
   width: 100%;
+  height: 200px;
   border-radius: 10px;
   object-fit: cover;
-  height: 350px;
 }
 
-.barber-item h3 {
+.top-barbers .barber-item h3 {
   margin-top: 10px;
-  font-size: 16px;
+  font-size: 18px;
   color: #333;
 }
 
-.barber-item p {
+.top-barbers .barber-item p {
   color: #666;
   font-size: 14px;
 }
 
-/* Hover hiệu ứng */
-.barber-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+@media (max-width: 768px) {
+  .top-barbers .barber-item {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .top-barbers .barber-item img {
+    height: 150px;
+  }
+
+  .top-barbers .barber-item h3 {
+    font-size: 16px;
+  }
+
+  .top-barbers .barber-item p {
+    font-size: 12px;
+  }
 }
-/* SHINE MEMBER */
+
+/* Shine Member */
 .shine-member {
   background: #fff;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: 30px auto;
   text-align: left;
-}
-
-.shine-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #002060;
-  padding-bottom: 5px;
-  border-left: 4px solid #002060;
-  padding-left: 10px;
-  margin-bottom: 10px;
 }
 
 .shine-description {
@@ -391,6 +329,7 @@ nav ul li a {
   height: auto;
   border-radius: 10px;
 }
+
 /* Footer */
 .footer {
   background-color: #002060;
