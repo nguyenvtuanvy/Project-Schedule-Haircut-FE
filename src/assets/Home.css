@@ -79,7 +79,6 @@ nav ul li a {
   padding: 20px;
   border-radius: 10px;
   width: 60%;
-  padding-top: 40px;
 }
 
 .booking-box h2 {
@@ -153,15 +152,15 @@ nav ul li a {
   margin-bottom: 15px;
 }
 
-.top-barbers-header h2, .shine-title{
-    margin-bottom: 5px;
+.top-barbers-header h2, .shine-title {
+  margin-bottom: 5px;
 }
 
 /* Wrapper cho tiêu đề section */
 .title-wrapper {
-    border-left: 4px solid #0a2a7c;
-    padding-left: 10px;
-    display: inline-block;
+  border-left: 4px solid #0a2a7c;
+  padding-left: 10px;
+  display: inline-block;
 }
 
 /* Service & Spa Items */
@@ -243,7 +242,7 @@ nav ul li a {
 
 /* Top Barbers */
 .top-barbers {
-    max-width: 1800px;
+  max-width: 1800px;
 }
 
 .top-barbers-header p {

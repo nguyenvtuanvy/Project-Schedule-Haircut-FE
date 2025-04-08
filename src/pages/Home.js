@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../assets/Home.css";
 import Footer from "../components/Footer";
 import BarberSlider from "../components/BarberSlider";
@@ -14,27 +14,13 @@ import shine1 from "../assets/image/shine1.jpg";
 import shine2 from "../assets/image/shine2.jpg";
 import shine3 from "../assets/image/shine3.jpg";
 import ShineMemberBanner from "../assets/image/shine-member-banner.jpg";
-import LoginForm from './Login'; // Import LoginForm
 
-const Home = () => {
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState('');
-
-  const handleLoginClick = () => {
-    setShowLoginForm(true);
-  };
-
-  const handleCloseLoginForm = () => {
-    setShowLoginForm(false);
-  };
+const Home = ({ onOpenLogin }) => {
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const handleBooking = () => {
-    console.log('Số điện thoại:', phoneNumber);
+    console.log("Số điện thoại:", phoneNumber);
   };
-
-  useEffect(() => {
-    document.body.style.overflow = showLoginForm ? 'hidden' : 'unset'; // Cập nhật overflow của body
-  }, [showLoginForm]);
 
   return (
     <div>
@@ -54,21 +40,14 @@ const Home = () => {
             <li><a href="/dv-smiles">Nụ cười DV</a></li>
           </ul>
         </nav>
-        <button className="login-btn" onClick={handleLoginClick}>Đăng nhập</button>
+        <button className="login-btn" onClick={onOpenLogin}>Đăng nhập</button>
       </header>
-      {showLoginForm && (
-        <div className="overlay">
-          <LoginForm onClose={handleCloseLoginForm}>
-            <button className="close-button" onClick={handleCloseLoginForm}>
-              ×
-            </button>
-          </LoginForm>
-        </div>
-      )}
+
       {/* Banner */}
       <section className="banner">
         <img src={bannerImage} alt="30 Shine Banner" />
       </section>
+
       {/* Đặt lịch */}
       <section className="booking">
         <div className="booking-box">
@@ -86,12 +65,13 @@ const Home = () => {
         </div>
         <div className="rating-box">
           <a href="/rating">
-            <h3>Mời anh, chị đánh giá chất lượng dịch vụ</h3>
+            <h3>Mời anh, chị đánh giá chất lượng dịch vụ</h3>
             <p>Phản hồi của anh sẽ giúp chúng em cải thiện chất lượng dịch vụ tốt hơn</p>
             <div className="stars">⭐⭐⭐⭐☆</div>
           </a>
         </div>
       </section>
+
       {/* Dịch vụ tóc */}
       <section className="services">
         <div className="title-wrapper"><h2>DỊCH VỤ TÓC</h2></div>
@@ -122,6 +102,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* SPA & RELAX */}
       <section className="spa-relax">
         <div className="title-wrapper"><h2>SPA & RELAX</h2></div>
@@ -144,6 +125,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* SHINE COLLECTION */}
       <section className="shine-collection">
         <div className="title-wrapper"><h2>SHINE COLLECTION - `VIBE` NÀO CŨNG TỎA SÁNG</h2></div>
@@ -170,6 +152,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Top Thợ Cắt Tóc Trong Tháng */}
       <section className="top-barbers">
         <div className="top-barbers-header">
@@ -178,6 +161,7 @@ const Home = () => {
         </div>
         <BarberSlider />
       </section>
+
       {/* Shine Member */}
       <section className="shine-member">
         <div className="title-wrapper"><h2 className="shine-title">SHINE MEMBER</h2></div>
@@ -190,6 +174,7 @@ const Home = () => {
           </a>
         </div>
       </section>
+
       {/* Footer */}
       <Footer />
     </div>

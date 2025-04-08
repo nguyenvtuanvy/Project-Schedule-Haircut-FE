@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import "./BarberSlider.css";
+import "../assets/BaberSlider.css";
 import barber1 from "../assets/image/barber1.jpg";
 import barber2 from "../assets/image/barber2.jpg";
 import barber3 from "../assets/image/barber3.jpg";
@@ -14,6 +14,10 @@ const barbers = [
     { name: "Đỗ Duy Thành", location: "172 Quang Trung, Đà Nẵng", image: barber2 },
     { name: "Nguyễn Văn Thuận", location: "328 Bạch Đằng, Hà Nội", image: barber3 },
     { name: "Nguyễn Trần", location: "290 Quang Trung, Thanh Hóa", image: barber4 },
+    { name: "Nguyễn Trần", location: "290 Quang Trung, Thanh Hóa", image: barber3 },
+    { name: "Nguyễn Trần", location: "290 Quang Trung, Thanh Hóa", image: barber4 },
+    { name: "Nguyễn Văn Thuận", location: "328 Bạch Đằng, Hà Nội", image: barber1 },
+    { name: "Nguyễn Văn Thuận", location: "328 Bạch Đằng, Hà Nội", image: barber4 }
   ];
   
 
