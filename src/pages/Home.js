@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import "../assets/Home.css";
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BarberSlider from "../components/BarberSlider";
 import bannerImage from "../assets/image/banner.jpg";
-import logoImage from "../assets/image/logo.png";
 import haircutImage from "../assets/image/haircut.jpg";
 import hairColorImage from "../assets/image/haircolor.jpg";
 import hairCurlImage from "../assets/image/haircurl.jpg";
@@ -25,29 +25,11 @@ const Home = ({ onOpenLogin }) => {
   return (
     <div>
       {/* Header */}
-      <header className="header">
-        <div className="logo">
-          <img src={logoImage} alt="30Shine Logo" />
-        </div>
-        <nav>
-          <ul>
-            <li><a href="/">Trang Chủ</a></li>
-            <li><a href="/about">Về 30Shine</a></li>
-            <li><a href="/shop">30Shine Shop</a></li>
-            <li><a href="/locations">Tìm 30Shine gần nhất</a></li>
-            <li><a href="/franchise">Nhượng quyền</a></li>
-            <li><a href="/partners">Đối tác</a></li>
-            <li><a href="/dv-smiles">Nụ cười DV</a></li>
-          </ul>
-        </nav>
-        <button className="login-btn" onClick={onOpenLogin}>Đăng nhập</button>
-      </header>
-
+      <Header onOpenLogin={onOpenLogin}/>
       {/* Banner */}
       <section className="banner">
         <img src={bannerImage} alt="30 Shine Banner" />
       </section>
-
       {/* Đặt lịch */}
       <section className="booking">
         <div className="booking-box">

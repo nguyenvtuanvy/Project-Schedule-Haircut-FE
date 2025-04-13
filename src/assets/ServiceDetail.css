@@ -1,0 +1,128 @@
+.service-detail {
+    padding: 24px 16px;
+    background-color: #f9f9f9;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .service-title {
+    font-size: 24px;
+    margin-bottom: 6px;
+    color: #003366;
+    font-weight: bold;
+    text-align: left;
+  }
+  
+  .service-subtitle {
+    color: #555;
+    margin-bottom: 24px;
+    font-style: italic;
+    text-align: left;
+    font-size: 15px;
+  }
+  
+  .combo-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+    justify-items: center;
+  }
+  
+  .combo-card {
+    background: white;
+    width: 90%;               /* giảm độ rộng thẻ */
+    min-height: 360px;        /* tăng chiều cao */
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .combo-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .combo-card h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: #222;
+    font-weight: 600;
+  }
+  
+  .combo-card p {
+    margin-bottom: 6px;
+    color: #555;
+    font-size: 13px;
+    font-style: italic;
+  }
+  
+  .combo-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 8px 0 12px;
+  }
+  
+  .combo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  
+  .combo-footer span {
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #004aad;
+    color: #004aad;
+    font-weight: 500;
+    background-color: #fff;
+  }
+  
+  .combo-footer a {
+    color: #004aad;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+  }
+  
+  .combo-footer a:hover {
+    text-decoration: underline;
+  }
+  
+  .booking-button {
+    margin: 32px auto 0;
+    background: #004AAD;
+    color: white;
+    padding: 10px 20px;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: block;
+  }
+  
+  .booking-button:hover {
+    background: #003080;
+  }
+  
+  /* Responsive: 2 combo trên tablet, 1 combo trên mobile */
+  @media (max-width: 992px) {
+    .combo-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .combo-list {
+      grid-template-columns: 1fr;
+    }
+  }
+  

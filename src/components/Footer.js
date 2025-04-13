@@ -1,6 +1,4 @@
 import React from "react";
-import "../assets/Home.css";
-
 const Footer = () => {
     return (
         <footer className="footer">
