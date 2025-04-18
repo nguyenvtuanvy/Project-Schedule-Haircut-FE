@@ -1,0 +1,118 @@
+.booking-history {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    max-width: 900px;
+    margin: auto;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fff;
+  }
+  
+  .booking-history h2 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  
+  .status-tabs {
+    display: flex;
+    justify-content: space-around;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  
+  .status-tabs span {
+    cursor: pointer;
+    padding: 8px;
+  }
+  
+  .status-tabs .active {
+    border-bottom: 2px solid #000;
+  }
+  
+  .booking-item {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid #ccc;
+    padding: 16px 0;
+  }
+  
+  .booking-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 16px;
+  }
+  
+  .details {
+    flex: 1;
+  }
+  
+  .details h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #003366;
+  }
+  
+  .details p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .details span {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .price-action {
+    text-align: right;
+  }
+  
+  .price-action span {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .price-action button {
+    background-color: #003366;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .total-payment {
+    text-align: right;
+    font-weight: bold;
+    margin-top: 16px;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    gap: 12px;
+  }
+  
+  .action-buttons button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .review {
+    background-color: #003366;
+    color: white;
+  }
+  
+  .refund {
+    background-color: #003366;
+    color: white;
+  }
+  

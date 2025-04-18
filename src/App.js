@@ -5,6 +5,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import HaircutDetail from './pages/HaircutDetail'; // import trang chi tiết
+import BookingHistoryPage from './pages/BookingHistoryPage'; // import trang chi tiết
 
 import './assets/LoginForm.css';
 import './assets/Register.css';
@@ -45,6 +46,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home onOpenLogin={handleOpenLogin} />} />
           <Route path="/haircut" element={<HaircutDetail />} />
+          {/* gọi thử route BookingHistory */}
+          {/* <Route path="/lich-su-dat-lich" element={<BookingHistoryPage />} /> */}
           {/* Thêm các route khác ở đây nếu cần */}
         </Routes>
 
