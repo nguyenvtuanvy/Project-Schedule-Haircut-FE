@@ -1,117 +1,258 @@
+/* Login.css */
 .login-container {
-    background-color: white;
-    padding: 40px;
+    background-color: #fff;
+    padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 400px;
-    max-width: 90%;
-    position: fixed;
-    top: 35%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1001;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    user-select: none;
 }
 
-h2 {
+.login-title {
     text-align: center;
-    margin-bottom: 30px;
-    color: #333;
-    font-size: 1.8em;
+    margin: 0 0 2rem;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    position: relative;
+}
+
+.login-fields {
+    flex: 1;
+    overflow-y: auto;
+    /* margin-bottom: 1rem; */
 }
 
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 1.25rem;
 }
 
 .input-group .icon {
     position: absolute;
-    left: 10px;
+    left: 1rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #999;
-    font-size: 1.2em;
+    color: #6b7280;
+    font-size: 1.1rem;
+    z-index: 2;
 }
 
-input[type="text"],
-input[type="password"] {
-    width: calc(100% - 0px);
-    padding: 12px 10px 12px 35px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
+.input-group input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: #f9fafb;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus {
+.input-group input:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #fff;
+}
+
+.input-group .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.25rem;
+    transition: color 0.2s ease;
+}
+
+.input-group .password-toggle:hover {
+    color: #3b82f6;
 }
 
 .forgot-password {
     display: block;
     text-align: right;
-    margin-bottom: 20px;
-    color: #007bff;
+    margin: 1rem 0 1.5rem;
+    color: #3b82f6;
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
 }
 
 .forgot-password:hover {
     text-decoration: underline;
+    opacity: 0.9;
 }
 
 .login-button {
     width: 100%;
-    padding: 14px;
-    background-color: #007bff;
+    padding: 1rem;
+    background-color: #3b82f6;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 1.1em;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
 }
 
 .login-button:hover {
-    background-color: #0056b3;
+    background-color: #2563eb;
+}
+
+.login-button:disabled {
+    background-color: #bfdbfe;
+    cursor: not-allowed;
+    opacity: 0.8;
 }
 
 .register-link {
     text-align: center;
-    margin-top: 20px;
-    font-size: 0.9em;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    color: #4b5563;
 }
 
 .register-link a {
-    color: #007bff;
+    color: #3b82f6;
     text-decoration: none;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    transition: opacity 0.2s ease;
 }
 
 .register-link a:hover {
     text-decoration: underline;
+    opacity: 0.9;
 }
 
-.overlay {
-    position: fixed;
-    /* Thay đổi thành fixed */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin: 0.25rem 0 0.5rem 0.5rem;
+    font-weight: 500;
 }
 
-.close-button {
-    /* Thêm style cho nút đóng */
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5em;
-    cursor: pointer;
-    color: #333;
+/* Loading spinner */
+.spinner-border {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    vertical-align: text-bottom;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+    margin-right: 0.75rem;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Màn hình điện thoại (≤ 480px) */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 1rem;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .login-title {
+        font-size: 1.25rem;
+    }
+
+    .input-group input {
+        padding: 0.75rem 1rem 0.75rem 2.25rem;
+        font-size: 0.9rem;
+    }
+
+    .login-button {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .register-link,
+    .forgot-password {
+        font-size: 0.8rem;
+    }
+}
+
+/* Màn hình laptop (481px - 1439px) */
+@media (min-width: 481px) and (max-width: 1439px) {
+    .login-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .login-title {
+        font-size: 1.5rem;
+    }
+
+    .input-group input {
+        font-size: 1rem;
+    }
+
+    .login-button {
+        font-size: 1rem;
+    }
+}
+
+/* Màn hình 24 inch (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+    .login-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 3rem;
+    }
+
+    .login-title {
+        font-size: 2rem;
+    }
+
+    .input-group input {
+        font-size: 1.05rem;
+    }
+
+    .login-button {
+        font-size: 1.05rem;
+        padding: 1rem;
+    }
+}
+
+/* Màn hình 27 inch (≥ 1920px) */
+@media (min-width: 1920px) {
+    .login-container {
+        max-width: 650px;
+        margin: auto;
+        padding: 3rem;
+    }
+
+    .login-title {
+        font-size: 2.25rem;
+    }
+
+    .input-group input {
+        font-size: 1.1rem;
+    }
+
+    .login-button {
+        font-size: 1.1rem;
+        padding: 1.1rem;
+    }
 }
