@@ -16,32 +16,43 @@ import PaymentPage from '../pages/PaymentPage';
 import PaymentReturn from '../pages/PaymentReturn';
 import Profile from '../pages/Profile';
 import StaffHome from '../pages/StaffHome';
-import PrivateRoute from '../routers/privateRouters/PrivateRoute';
 import AdminLoginForm from '../components/AdminLogin';
+import PrivateRoute from '../routers/privateRouters/PrivateRoute';
+import AccountManagement from '../components/AccountManagement';
 
 const routes = [
     {
         path: '/home',
         element: (
-            <MainLayout>
-                <Home />
-            </MainLayout>
+            <PrivateRoute
+                allowUnauthenticatedPaths={['/home', '/detail/:categoryId']}
+                blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}
+            >
+                <MainLayout>
+                    <Home />
+                </MainLayout>
+            </PrivateRoute>
         ),
         private: false,
     },
     {
         path: '/detail/:categoryId',
         element: (
-            <MainLayout>
-                <HaircutDetail />
-            </MainLayout>
+            <PrivateRoute
+                allowUnauthenticatedPaths={['/home', '/detail/:categoryId']}
+                blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}
+            >
+                <MainLayout>
+                    <HaircutDetail />
+                </MainLayout>
+            </PrivateRoute>
         ),
         private: false,
     },
     {
         path: '/cart',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <MainLayout>
                     <Cart />
                 </MainLayout>
@@ -52,7 +63,7 @@ const routes = [
     {
         path: '/profile',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <MainLayout>
                     <Profile />
                 </MainLayout>
@@ -63,7 +74,7 @@ const routes = [
     {
         path: '/booking',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <MainLayout>
                     <Booking />
                 </MainLayout>
@@ -74,19 +85,18 @@ const routes = [
     {
         path: '/booking-history',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <MainLayout>
                     <BookingHistory />
                 </MainLayout>
             </PrivateRoute>
         ),
         private: true,
-    }
-    ,
+    },
     {
         path: '/payment/:bookingId',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <PaymentPage />
             </PrivateRoute>
         ),
@@ -95,60 +105,44 @@ const routes = [
     {
         path: '/payment-return',
         element: (
-            <PrivateRoute role="ROLE_USER">
+            <PrivateRoute requiredRole="ROLE_USER" blockedRoles={['ROLE_EMPLOYEE', 'ROLE_ADMIN']}>
                 <PaymentReturn />
             </PrivateRoute>
         ),
         private: true,
     },
-
-
     {
         path: '/employee/home',
         element: (
-            <PrivateRoute role="ROLE_EMPLOYEE" loginPage={<StaffLoginForm />}>
+            <PrivateRoute
+                requiredRole="ROLE_EMPLOYEE"
+                loginPage={<StaffLoginForm />}
+                blockedRoles={['ROLE_ADMIN', 'ROLE_USER']}
+            >
                 <StaffHome />
             </PrivateRoute>
         ),
         private: false,
     },
-
     {
         path: '/admin/*',
         element: (
-            <PrivateRoute role="ROLE_ADMIN" loginPage={<AdminLoginForm />}>
+            <PrivateRoute
+                requiredRole="ROLE_ADMIN"
+                loginPage={<AdminLoginForm />}
+                blockedRoles={['ROLE_EMPLOYEE', 'ROLE_USER']}>
                 <AdminHome />
             </PrivateRoute>
         ),
         private: false,
         children: [
-            {
-                path: '', // /admin
-                element: <Dashboard />,
-            },
-            {
-                path: '/customers', // /admin/customers
-                element: <CustomerManagement />,
-            },
-            {
-                path: 'staff', // /admin/staff
-                element: <StaffManagement />,
-            },
-            {
-                path: 'schedules', // /admin/schedules
-                element: <ScheduleManagement />,
-            },
-            {
-                path: 'services', // /admin/services
-                element: <ServiceManagement />,
-            },
-            {
-                path: 'transactions', // /admin/transactions
-                element: <TransactionManagement />,
-            },
-        ]
+            { path: '', element: <Dashboard /> },
+            { path: 'acounts', element: <AccountManagement /> },
+            { path: 'schedules', element: <ScheduleManagement /> },
+            { path: 'services', element: <ServiceManagement /> },
+            { path: 'transactions', element: <TransactionManagement /> },
+        ],
     },
-
 ];
 
 export default routes;

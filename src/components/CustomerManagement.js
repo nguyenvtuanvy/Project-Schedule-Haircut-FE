@@ -1,67 +1,47 @@
-// CustomerManagement.jsx
-import React, { useState } from 'react';
-import { Table, Button, Space, Input, Tag, Popconfirm, message } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Table, Button, Space, Input, Tag, message, Spin } from 'antd';
 import { SearchOutlined, LockOutlined, UnlockOutlined } from '@ant-design/icons';
 import '../assets/css/Management.css';
-
-// Mock data for customers
-const mockCustomers = [
-    {
-        id: 1,
-        fullName: 'Nguyễn Văn A',
-        phone: '0987654321',
-        email: 'a.nguyen@example.com',
-        isBlocked: false,
-        bookings: 5
-    },
-    {
-        id: 2,
-        fullName: 'Trần Thị B',
-        phone: '0912345678',
-        email: 'b.tran@example.com',
-        isBlocked: true,
-        bookings: 2
-    },
-    {
-        id: 3,
-        fullName: 'Lê Văn C',
-        phone: '0978123456',
-        email: 'c.le@example.com',
-        isBlocked: false,
-        bookings: 10
-    },
-    {
-        id: 4,
-        fullName: 'Phạm Thị D',
-        phone: '0965432187',
-        email: 'd.pham@example.com',
-        isBlocked: false,
-        bookings: 3
-    },
-    {
-        id: 5,
-        fullName: 'Hoàng Văn E',
-        phone: '0932165498',
-        email: 'e.hoang@example.com',
-        isBlocked: true,
-        bookings: 1
-    }
-];
+import useManagementService from '../services/managementService';
 
 const CustomerManagement = () => {
-    const [customers, setCustomers] = useState(mockCustomers);
+    const { getCustomers, managementState } = useManagementService();
+    const [customers, setCustomers] = useState([]);
     const [searchText, setSearchText] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleBlock = (id) => {
-        setCustomers(customers.map(customer =>
-            customer.id === id ? { ...customer, isBlocked: !customer.isBlocked } : customer
-        ));
-        message.success('Cập nhật trạng thái thành công');
+    useEffect(() => {
+        fetchCustomerData();
+    }, []);
+
+    const fetchCustomerData = async () => {
+        try {
+            setLoading(true);
+            const data = await getCustomers();
+            setCustomers(data);
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu khách hàng: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleDelete = (id) => {
-        setCustomers(customers.filter(customer => customer.id !== id));
-        message.success('Xóa khách hàng thành công');
+    const handleBlock = async (id) => {
+        try {
+            setLoading(true);
+            // Gọi API block/unlock ở đây
+            // await blockCustomerAPI(id);
+
+            // Cập nhật UI tạm thời
+            setCustomers(customers.map(customer =>
+                customer.id === id ? { ...customer, isBlocked: !customer.isBlocked } : customer
+            ));
+            message.success('Cập nhật trạng thái thành công');
+        } catch (error) {
+            message.error('Lỗi khi cập nhật trạng thái: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const columns = [
@@ -103,15 +83,11 @@ const CustomerManagement = () => {
                     <Button
                         icon={record.isBlocked ? <UnlockOutlined /> : <LockOutlined />}
                         onClick={() => handleBlock(record.id)}
+                        loading={loading}
+                        disabled={loading}
                     >
                         {record.isBlocked ? 'Mở khóa' : 'Khóa'}
                     </Button>
-                    <Popconfirm
-                        title="Xác nhận xóa?"
-                        onConfirm={() => handleDelete(record.id)}
-                    >
-                        <Button danger>Xóa</Button>
-                    </Popconfirm>
                 </Space>
             ),
         },
@@ -133,16 +109,20 @@ const CustomerManagement = () => {
                     style={{ width: 300 }}
                     onSearch={setSearchText}
                     allowClear
+                    disabled={loading}
                 />
             </div>
 
-            <Table
-                columns={columns}
-                dataSource={filteredData}
-                rowKey="id"
-                bordered
-                pagination={{ pageSize: 8 }}
-            />
+            <Spin spinning={loading || managementState.loading}>
+                <Table
+                    columns={columns}
+                    dataSource={filteredData}
+                    rowKey="id"
+                    bordered
+                    pagination={{ pageSize: 8 }}
+                    loading={loading || managementState.loading}
+                />
+            </Spin>
         </div>
     );
 };

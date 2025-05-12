@@ -1,67 +1,59 @@
-import React, { useState } from 'react';
-import { Table, Button, Space, Image, Input, Select, message, Popconfirm, Modal, Form, InputNumber } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import {
+    Table,
+    Button,
+    Space,
+    Image,
+    Input,
+    Select,
+    message,
+    Popconfirm,
+    Modal,
+    Form,
+    InputNumber,
+    Spin,
+    Tag
+} from 'antd';
+import {
+    UploadOutlined,
+    SearchOutlined,
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined
+} from '@ant-design/icons';
 import '../assets/css/ServiceManagement.css';
+import useManagementService from '../services/managementService';
 
 const { Search } = Input;
 const { Option } = Select;
 
-// Mock dữ liệu
-const mockServices = [
-    {
-        id: 1,
-        name: 'Cắt tóc nam',
-        price: 150000,
-        haircutTime: 45,
-        image: 'https://i.postimg.cc/hPN2xWW3/image.png',
-        category: { id: 1, name: 'HAIRCUT' }
-    },
-    {
-        id: 2,
-        name: 'Gội đầu dưỡng sinh',
-        price: 120000,
-        haircutTime: 30,
-        image: 'https://i.postimg.cc/hPN2xWW3/image.png',
-        category: { id: 2, name: 'SPA' }
-    },
-    {
-        id: 3,
-        name: 'Cạo mặt',
-        price: 80000,
-        haircutTime: 20,
-        image: 'https://i.postimg.cc/hPN2xWW3/image.png',
-        category: { id: 1, name: 'HAIRCUT' }
-    },
-    {
-        id: 4,
-        name: 'Massage mặt',
-        price: 180000,
-        haircutTime: 40,
-        image: 'https://i.postimg.cc/hPN2xWW3/image.png',
-        category: { id: 2, name: 'SPA' }
-    },
-];
-
-const mockCombos = [
-    {
-        id: 1,
-        name: 'Combo VIP',
-        price: 300000,
-        image: 'https://i.postimg.cc/hPN2xWW3/image.png',
-        services: [1, 3], // Các dịch vụ trong combo
-    }
-];
-
 const ServiceManagement = () => {
-    const [services, setServices] = useState(mockServices);
-    const [combos, setCombos] = useState(mockCombos);
+    const { getServices, getCombos, managementState } = useManagementService();
+    const [services, setServices] = useState([]);
+    const [combos, setCombos] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [viewMode, setViewMode] = useState('service'); // 'service' hoặc 'combo'
+    const [viewMode, setViewMode] = useState('service');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingService, setEditingService] = useState(null);
-    const [editingCombo, setEditingCombo] = useState(null);
+    const [editingItem, setEditingItem] = useState(null);
     const [form] = Form.useForm();
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [servicesData, combosData] = await Promise.all([
+                getServices(),
+                getCombos()
+            ]);
+            setServices(servicesData);
+            setCombos(combosData);
+        } catch (error) {
+            message.error('Lỗi khi tải dữ liệu: ' + error.message);
+        }
+    };
 
     const handleSearch = (value) => {
         setSearchText(value);
@@ -71,128 +63,159 @@ const ServiceManagement = () => {
         setSelectedCategory(value);
     };
 
-    const handleDeleteService = (id) => {
-        setServices(prev => prev.filter(service => service.id !== id));
-        message.success('Xóa dịch vụ thành công');
+    const handleDelete = (id) => {
+        if (viewMode === 'service') {
+            setServices(prev => prev.filter(item => item.id !== id));
+            message.success('Xóa dịch vụ thành công');
+        } else {
+            setCombos(prev => prev.filter(item => item.id !== id));
+            message.success('Xóa combo thành công');
+        }
     };
-
-    const handleDeleteCombo = (id) => {
-        setCombos(prev => prev.filter(combo => combo.id !== id));
-        message.success('Xóa combo thành công');
-    };
-
-    const filteredServices = services.filter(service => {
-        const matchName = service.name.toLowerCase().includes(searchText.toLowerCase());
-        const matchCategory = selectedCategory ? service.category.name === selectedCategory : true;
-        return matchName && matchCategory;
-    });
-
-    const filteredCombos = combos.filter(combo => {
-        const matchName = combo.name.toLowerCase().includes(searchText.toLowerCase());
-        return matchName;
-    });
 
     const openAddModal = () => {
-        setEditingService(null);
-        setEditingCombo(null);
+        setEditingItem(null);
         form.resetFields();
         setIsModalOpen(true);
     };
 
-    const openEditModal = (service) => {
-        setEditingService(service);
-        setEditingCombo(null);
+    const openEditModal = (record) => {
+        setEditingItem(record);
         form.setFieldsValue({
-            name: service.name,
-            price: service.price,
-            haircutTime: service.haircutTime,
-            image: service.image,
-            category: service.category.name,
+            name: record.name,
+            price: record.price,
+            ...(viewMode === 'service' && {
+                haircutTime: record.haircutTime,
+                category: record.category?.name,
+            }),
+            ...(viewMode === 'combo' && {
+                services: record.services,
+            }),
+            image: record.image,
         });
         setIsModalOpen(true);
     };
 
-    const openEditComboModal = (combo) => {
-        setEditingCombo(combo);
-        setEditingService(null);
-        form.setFieldsValue({
-            name: combo.name,
-            price: combo.price,
-            image: combo.image,
-            services: combo.services,
-        });
-        setIsModalOpen(true);
-    };
+    const handleModalOk = async () => {
+        try {
+            const values = await form.validateFields();
 
-    const handleModalOk = () => {
-        form.validateFields().then(values => {
-            if (editingService) {
-                // Edit service
-                const updated = services.map(s =>
-                    s.id === editingService.id
-                        ? { ...s, ...values, category: { id: s.category.id, name: values.category } }
-                        : s
-                );
-                setServices(updated);
-                message.success('Cập nhật dịch vụ thành công');
-            } else if (editingCombo) {
-                // Edit combo
-                const updatedCombos = combos.map(c =>
-                    c.id === editingCombo.id
-                        ? { ...c, ...values, services: values.services }
-                        : c
-                );
-                setCombos(updatedCombos);
-                message.success('Cập nhật combo thành công');
-            } else {
-                // Add new service or combo
-                if (viewMode === 'service') {
-                    const newService = { id: services.length + 1, ...values, category: { id: values.category === 'HAIRCUT' ? 1 : 2, name: values.category } };
+            if (viewMode === 'service') {
+                if (editingItem) {
+                    // Update service
+                    setServices(services.map(item =>
+                        item.id === editingItem.id
+                            ? {
+                                ...item,
+                                ...values,
+                                category: {
+                                    id: item.category.id,
+                                    name: values.category
+                                }
+                            }
+                            : item
+                    )
+                    );
+                    message.success('Cập nhật dịch vụ thành công');
+                } else {
+                    // Add new service
+                    const newService = {
+                        id: Math.max(...services.map(s => s.id), 0) + 1,
+                        ...values,
+                        category: {
+                            id: values.category === 'HAIRCUT' ? 1 : 2,
+                            name: values.category
+                        }
+                    };
                     setServices([...services, newService]);
                     message.success('Thêm dịch vụ mới thành công');
-                } else if (viewMode === 'combo') {
-                    const newCombo = { id: combos.length + 1, ...values };
+                }
+            } else {
+                if (editingItem) {
+                    // Update combo
+                    setCombos(combos.map(item =>
+                        item.id === editingItem.id
+                            ? { ...item, ...values }
+                            : item
+                    ));
+                    message.success('Cập nhật combo thành công');
+                } else {
+                    // Add new combo
+                    const newCombo = {
+                        id: Math.max(...combos.map(c => c.id), 0) + 1,
+                        ...values
+                    };
                     setCombos([...combos, newCombo]);
                     message.success('Thêm combo mới thành công');
                 }
             }
+
             setIsModalOpen(false);
-        });
+        } catch (error) {
+            console.error('Validation failed:', error);
+        }
     };
 
-    const columns = [
+    const filteredServices = services.filter(service => {
+        const matchName = service.name.toLowerCase().includes(searchText.toLowerCase());
+        const matchCategory = selectedCategory
+            ? service.category?.name === selectedCategory
+            : true;
+        return matchName && matchCategory;
+    });
+
+    const filteredCombos = combos.filter(combo => {
+        return combo.name.toLowerCase().includes(searchText.toLowerCase());
+    });
+
+    const serviceColumns = [
         {
             title: 'Hình ảnh',
             dataIndex: 'image',
             render: (image) => <Image src={image} width={80} />,
         },
-        { title: 'Tên dịch vụ', dataIndex: 'name' },
+        {
+            title: 'Tên dịch vụ',
+            dataIndex: 'name',
+            sorter: (a, b) => a.name.localeCompare(b.name),
+        },
         {
             title: 'Giá',
             dataIndex: 'price',
             render: (price) => price.toLocaleString('vi-VN') + ' đ',
+            sorter: (a, b) => a.price - b.price,
         },
         {
             title: 'Thời gian (phút)',
             dataIndex: 'haircutTime',
             render: (time) => `${time} phút`,
+            sorter: (a, b) => a.haircutTime - b.haircutTime,
         },
         {
             title: 'Danh mục',
             dataIndex: ['category', 'name'],
+            render: (category) => (
+                <Tag color={category === 'HAIRCUT' ? 'blue' : 'purple'}>
+                    {category}
+                </Tag>
+            ),
         },
         {
-            title: 'Actions',
+            title: 'Thao tác',
             render: (_, record) => (
                 <Space>
-                    <Button type="primary" onClick={() => openEditModal(record)}>Sửa</Button>
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => openEditModal(record)}
+                    />
                     <Popconfirm
-                        title="Bạn có chắc muốn xóa dịch vụ này?"
-                        onConfirm={() => handleDeleteService(record.id)}
-                        okText="Có"
-                        cancelText="Không"
+                        title="Bạn chắc chắn muốn xóa?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Xóa"
+                        cancelText="Hủy"
                     >
-                        <Button danger>Xóa</Button>
+                        <Button danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
             ),
@@ -205,36 +228,49 @@ const ServiceManagement = () => {
             dataIndex: 'image',
             render: (image) => <Image src={image} width={80} />,
         },
-        { title: 'Tên combo', dataIndex: 'name' },
+        {
+            title: 'Tên combo',
+            dataIndex: 'name',
+            sorter: (a, b) => a.name.localeCompare(b.name),
+        },
         {
             title: 'Giá',
             dataIndex: 'price',
             render: (price) => price.toLocaleString('vi-VN') + ' đ',
+            sorter: (a, b) => a.price - b.price,
         },
         {
-            title: 'Dịch vụ',
+            title: 'Dịch vụ bao gồm',
             dataIndex: 'services',
             render: (servicesIds) => (
-                <ul>
+                <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
                     {servicesIds.map(id => {
                         const service = services.find(s => s.id === id);
-                        return <li key={id}>{service?.name}</li>;
+                        return (
+                            <Tag key={id} color="cyan" style={{ marginBottom: 4 }}>
+                                {service?.name || `Dịch vụ #${id}`}
+                            </Tag>
+                        );
                     })}
-                </ul>
+                </div>
             ),
         },
         {
-            title: 'Actions',
+            title: 'Thao tác',
             render: (_, record) => (
                 <Space>
-                    <Button type="primary" onClick={() => openEditComboModal(record)}>Sửa</Button>
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => openEditModal(record)}
+                    />
                     <Popconfirm
-                        title="Bạn có chắc muốn xóa combo này?"
-                        onConfirm={() => handleDeleteCombo(record.id)}
-                        okText="Có"
-                        cancelText="Không"
+                        title="Bạn chắc chắn muốn xóa?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Xóa"
+                        cancelText="Hủy"
                     >
-                        <Button danger>Xóa</Button>
+                        <Button danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                 </Space>
             ),
@@ -244,49 +280,76 @@ const ServiceManagement = () => {
     return (
         <div className="management-container">
             <div className="management-header">
-                <h2>Quản lý Dịch vụ và Combo</h2>
-                <Button type="primary" style={{ marginBottom: 16 }} onClick={openAddModal}>
-                    Thêm mới
-                </Button>
+                <h2>Quản lý Dịch vụ {viewMode === 'combo' && 'và Combo'}</h2>
+                <Space>
+                    <Input.Search
+                        placeholder="Tìm kiếm..."
+                        prefix={<SearchOutlined />}
+                        style={{ width: 300 }}
+                        onSearch={handleSearch}
+                        allowClear
+                        disabled={managementState.loading}
+                    />
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={openAddModal}
+                        disabled={managementState.loading}
+                    >
+                        Thêm mới
+                    </Button>
+                </Space>
             </div>
+
             <Space style={{ marginBottom: 16 }}>
-                <Select value={viewMode} onChange={setViewMode} style={{ width: 200 }}>
+                <Select
+                    value={viewMode}
+                    onChange={setViewMode}
+                    style={{ width: 200 }}
+                    disabled={managementState.loading}
+                >
                     <Option value="service">Dịch vụ</Option>
                     <Option value="combo">Combo</Option>
                 </Select>
-                <Search
-                    placeholder="Tìm kiếm"
-                    allowClear
-                    enterButton="Tìm"
-                    onSearch={handleSearch}
-                    style={{ width: 300 }}
-                />
-                {viewMode === 'service' ? (
+
+                {viewMode === 'service' && (
                     <Select
-                        placeholder="Lọc theo danh mục"
+                        placeholder="Tất cả danh mục"
                         allowClear
                         style={{ width: 200 }}
                         onChange={handleCategoryFilter}
+                        disabled={managementState.loading}
                     >
-                        <Option value="HAIRCUT">HAIRCUT</Option>
-                        <Option value="SPA">SPA</Option>
+                        <Option value="HAIRCUT">Cắt tóc</Option>
+                        <Option value="SPA">Spa & Chăm sóc</Option>
                     </Select>
-                ) : null}
+                )}
             </Space>
-            <Table
-                columns={viewMode === 'service' ? columns : comboColumns}
-                dataSource={viewMode === 'service' ? filteredServices : filteredCombos}
-                rowKey="id"
-                bordered
-                pagination={{ pageSize: 5 }}
-            />
+
+            <Spin spinning={managementState.loading}>
+                <Table
+                    columns={viewMode === 'service' ? serviceColumns : comboColumns}
+                    dataSource={viewMode === 'service' ? filteredServices : filteredCombos}
+                    rowKey="id"
+                    bordered
+                    pagination={{
+                        pageSize: 5,
+                        showSizeChanger: false,
+                        showTotal: (total) => `Tổng ${total} mục`
+                    }}
+                    scroll={{ x: true }}
+                />
+            </Spin>
+
             <Modal
-                title={editingService || editingCombo ? "Chỉnh sửa" : "Thêm mới"}
+                title={editingItem ? `Chỉnh sửa ${viewMode === 'service' ? 'dịch vụ' : 'combo'}` : `Thêm ${viewMode === 'service' ? 'dịch vụ' : 'combo'} mới`}
                 open={isModalOpen}
                 onOk={handleModalOk}
                 onCancel={() => setIsModalOpen(false)}
-                okText="Lưu"
+                okText={editingItem ? 'Cập nhật' : 'Thêm mới'}
                 cancelText="Hủy"
+                confirmLoading={managementState.loading}
+                width={700}
             >
                 <Form form={form} layout="vertical">
                     <Form.Item
@@ -294,66 +357,76 @@ const ServiceManagement = () => {
                         name="name"
                         rules={[{ required: true, message: 'Vui lòng nhập tên!' }]}
                     >
-                        <Input />
+                        <Input placeholder={`Nhập tên ${viewMode === 'service' ? 'dịch vụ' : 'combo'}`} />
                     </Form.Item>
+
                     <Form.Item
-                        label="Giá"
+                        label="Giá (VNĐ)"
                         name="price"
                         rules={[{ required: true, message: 'Vui lòng nhập giá!' }]}
                     >
-                        <InputNumber style={{ width: '100%' }} min={0} />
+                        <InputNumber
+                            style={{ width: '100%' }}
+                            min={0}
+                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                        />
                     </Form.Item>
-                    <Form.Item
-                        label="Thời gian (phút)"
-                        name="haircutTime"
-                        rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
-                    >
-                        <InputNumber style={{ width: '100%' }} min={0} />
-                    </Form.Item>
-                    {viewMode === 'service' ? (
+
+                    {viewMode === 'service' && (
                         <>
+                            <Form.Item
+                                label="Thời gian thực hiện (phút)"
+                                name="haircutTime"
+                                rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
+                            >
+                                <InputNumber style={{ width: '100%' }} min={5} max={180} />
+                            </Form.Item>
+
                             <Form.Item
                                 label="Danh mục"
                                 name="category"
                                 rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                             >
-                                <Select>
-                                    <Option value="HAIRCUT">HAIRCUT</Option>
-                                    <Option value="SPA">SPA</Option>
+                                <Select placeholder="Chọn danh mục">
+                                    <Option value="HAIRCUT">Cắt tóc</Option>
+                                    <Option value="SPA">Spa & Chăm sóc</Option>
                                 </Select>
-                            </Form.Item>
-                            <Form.Item
-                                label="Hình ảnh"
-                                name="image"
-                                rules={[{ required: true, message: 'Vui lòng tải ảnh lên!' }]}
-                            >
-                                <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
-                            </Form.Item>
-                        </>
-                    ) : (
-                        <>
-                            <Form.Item
-                                label="Dịch vụ"
-                                name="services"
-                                rules={[{ required: true, message: 'Vui lòng chọn dịch vụ!' }]}
-                            >
-                                <Select mode="multiple" placeholder="Chọn dịch vụ">
-                                    {services.map(service => (
-                                        <Option key={service.id} value={service.id}>
-                                            {service.name}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                            <Form.Item
-                                label="Hình ảnh"
-                                name="image"
-                                rules={[{ required: true, message: 'Vui lòng tải ảnh lên!' }]}
-                            >
-                                <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
                             </Form.Item>
                         </>
                     )}
+
+                    {viewMode === 'combo' && (
+                        <Form.Item
+                            label="Dịch vụ bao gồm"
+                            name="services"
+                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 dịch vụ!' }]}
+                        >
+                            <Select
+                                mode="multiple"
+                                placeholder="Chọn dịch vụ"
+                                optionFilterProp="children"
+                                showSearch
+                                filterOption={(input, option) =>
+                                    option.children.toLowerCase().includes(input.toLowerCase())
+                                }
+                            >
+                                {services.map(service => (
+                                    <Option key={service.id} value={service.id}>
+                                        {service.name} - {service.price.toLocaleString('vi-VN')}đ
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    )}
+
+                    <Form.Item
+                        label="Hình ảnh"
+                        name="image"
+                        rules={[{ required: true, message: 'Vui lòng tải ảnh lên!' }]}
+                    >
+                        <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
+                    </Form.Item>
                 </Form>
             </Modal>
         </div>

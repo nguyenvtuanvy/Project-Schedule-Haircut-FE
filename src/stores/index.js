@@ -12,6 +12,7 @@ import actionFormReducer from './slices/actionFormSlice';
 import timeReducer from './slices/timeSlice';
 import staffReducer from './slices/staffSlice';
 import aiReducer from './slices/aiSlice';
+import managementReducer from './slices/managementSlice';
 
 const store = configureStore({
     reducer: {
@@ -28,6 +29,7 @@ const store = configureStore({
         time: timeReducer,
         staff: staffReducer,
         ai: aiReducer,
+        management: managementReducer,
     },
 });
 

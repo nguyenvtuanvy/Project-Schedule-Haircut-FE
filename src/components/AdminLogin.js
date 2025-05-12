@@ -39,7 +39,7 @@ const AdminLoginForm = () => {
                 }));
 
                 toast.success('Đăng nhập quản trị thành công!');
-                navigate('/admin'); // chuyển sang trang admin
+                window.location.reload();
             }
         } catch (error) {
             toast.error(error.message || 'Đăng nhập thất bại.');
