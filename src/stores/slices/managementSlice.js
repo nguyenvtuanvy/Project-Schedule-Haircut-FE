@@ -2,11 +2,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axiosClient from '../../config/axios';
 
 // Async thunks
-export const fetchCustomers = createAsyncThunk(
-    'management/fetchCustomers',
+export const fetchAccounts = createAsyncThunk(
+    'management/fetchAccounts',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axiosClient.get('/admin/customers');
+            const response = await axiosClient.get('/admin/accounts');
             return response;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
@@ -38,8 +38,21 @@ export const fetchCombos = createAsyncThunk(
     }
 );
 
+export const createEmployee = createAsyncThunk(
+    'management/createEmployee',
+    async (employeeData, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.post('/admin/create', employeeData);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+
 const initialState = {
-    customers: [],
+    accounts: [],
     services: [],
     combos: [],
     loading: false,
@@ -57,10 +70,10 @@ const managementSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Customers
-            .addCase(fetchCustomers.fulfilled, (state, action) => {
+            // Accounts
+            .addCase(fetchAccounts.fulfilled, (state, action) => {
                 state.loading = false;
-                state.customers = action.payload;
+                state.accounts = action.payload;
             })
 
             // Services
@@ -75,11 +88,16 @@ const managementSlice = createSlice({
                 state.combos = action.payload;
             })
 
+            // Create Employee
+            .addCase(createEmployee.fulfilled, (state) => {
+                state.loading = false;
+            })
+
             // Common loading
             .addMatcher(
                 (action) =>
                     action.type.endsWith('/pending') &&
-                    ['management/fetchCustomers', 'management/fetchServices', 'management/fetchCombos'].some((type) =>
+                    ['management/fetchAccounts', 'management/fetchServices', 'management/fetchCombos', 'management/createEmployee'].some((type) =>
                         action.type.startsWith(type)
                     ),
                 (state) => {
@@ -92,7 +110,7 @@ const managementSlice = createSlice({
             .addMatcher(
                 (action) =>
                     action.type.endsWith('/rejected') &&
-                    ['management/fetchCustomers', 'management/fetchServices', 'management/fetchCombos'].some((type) =>
+                    ['management/fetchAccounts', 'management/fetchServices', 'management/fetchCombos', 'management/createEmployee'].some((type) =>
                         action.type.startsWith(type)
                     ),
                 (state, action) => {

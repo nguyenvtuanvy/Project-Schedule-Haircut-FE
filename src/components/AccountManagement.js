@@ -1,77 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import {
     Table, Button, Modal, Form, Input, Select, Tag,
-    Space, Popconfirm, message, DatePicker, Upload,
-    Tabs, Divider, Row, Col, Spin
+    Space, Popconfirm, message, DatePicker,
+    Tabs, Divider, Row, Col, Spin,
+    InputNumber
 } from 'antd';
 import {
     PlusOutlined, EditOutlined, DeleteOutlined,
-    LockOutlined, UnlockOutlined, UploadOutlined,
-    UserOutlined, TeamOutlined
+    LockOutlined, UnlockOutlined, UserOutlined, TeamOutlined
 } from '@ant-design/icons';
 import '../assets/css/Management.css';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import useManagementService from '../services/managementService';
 
 dayjs.extend(customParseFormat);
 
 const { TabPane } = Tabs;
 
-// Mock data
-const mockAccounts = [
-    // Staff accounts
-    {
-        id: 1,
-        type: 'STAFF',
-        account: {
-            userName: 'staff1',
-            email: 'staff1@example.com',
-            fullName: 'Nguyễn Văn A',
-            phone: '0987654321',
-            age: 28,
-            address: 'Hà Nội',
-            avatar: '',
-            createdAt: '2023-01-15T10:30:00',
-            updatedAt: '2023-06-20T14:45:00'
-        },
-        role: 'HAIR_STYLIST',
-        isBlocked: false,
-        times: ['08:00-12:00', '13:00-17:00']
-    },
-    // Customer accounts
-    {
-        id: 2,
-        type: 'CUSTOMER',
-        account: {
-            userName: 'customer1',
-            email: 'customer1@example.com',
-            fullName: 'Trần Thị B',
-            phone: '0912345678',
-            age: 32,
-            address: 'TP.HCM',
-            avatar: '',
-            createdAt: '2023-02-20T09:15:00',
-            updatedAt: '2023-07-10T11:20:00'
-        },
-        bookingCount: 5,
-        isBlocked: false
-    }
-];
-
 const roleOptions = [
-    { value: 'HAIR_STYLIST', label: 'Thợ cắt tóc' },
-    { value: 'SPA_STAFF', label: 'Nhân viên spa' },
-    { value: 'MANAGER', label: 'Quản lý' }
+    { value: 0, label: 'Thợ cắt tóc' },
+    { value: 1, label: 'Nhân viên spa' },
 ];
 
-const timeSlots = [
-    { value: '08:00-12:00', label: 'Sáng (8h-12h)' },
-    { value: '13:00-17:00', label: 'Chiều (13h-17h)' },
-    { value: '18:00-22:00', label: 'Tối (18h-22h)' }
-];
 
 const AccountManagement = () => {
-    const [accounts, setAccounts] = useState(mockAccounts);
+    const { getAccounts, managementState, createNewEmployee } = useManagementService();
+    const [accounts, setAccounts] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [activeTab, setActiveTab] = useState('staff');
@@ -79,30 +34,29 @@ const AccountManagement = () => {
     const [form] = Form.useForm();
 
     useEffect(() => {
-        // Fetch data from API based on activeTab
         fetchData();
     }, [activeTab]);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Replace with actual API call
-            // const response = await fetchAccounts(activeTab);
-            // setAccounts(response.data);
+            const data = await getAccounts();
+            const filtered = data.filter(account =>
+                account.type === (activeTab === 'staff' ? 'STAFF' : 'CUSTOMER')
+            );
+            setAccounts(filtered);
             setLoading(false);
         } catch (error) {
             message.error('Lỗi khi tải dữ liệu');
             setLoading(false);
         }
     };
+    console.log(accounts);
 
     const handleToggleStatus = async (id) => {
         try {
             setLoading(true);
-            // Call API to toggle status
             // await toggleAccountStatus(id);
-
-            // Update UI temporarily
             setAccounts(accounts.map(account =>
                 account.id === id ? { ...account, isBlocked: !account.isBlocked } : account
             ));
@@ -114,56 +68,22 @@ const AccountManagement = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            setLoading(true);
-            // Call API to delete
-            // await deleteAccount(id);
-
-            setAccounts(accounts.filter(account => account.id !== id));
-            message.success('Xóa tài khoản thành công');
-        } catch (error) {
-            message.error('Lỗi khi xóa tài khoản');
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleFormSubmit = async () => {
         try {
             const values = await form.validateFields();
-            const formattedValues = {
+
+            const requestData = {
                 ...values,
-                type: activeTab === 'staff' ? 'STAFF' : 'CUSTOMER',
-                account: {
-                    ...values.account,
-                    age: parseInt(values.account.age),
-                    createdAt: values.account.createdAt?.format('YYYY-MM-DDTHH:mm:ss'),
-                    updatedAt: new Date().toISOString()
-                },
-                ...(activeTab === 'staff' && { times: values.times || [] })
+                type: values.role,
+                age: values.age,
             };
 
             if (editingId) {
-                // Call API to update
-                // await updateAccount(editingId, formattedValues);
-
-                setAccounts(accounts.map(account =>
-                    account.id === editingId ? formattedValues : account
-                ));
-                message.success('Cập nhật thành công');
+                // Logic update (nếu cần)
             } else {
-                // Call API to create
-                // const newAccount = await createAccount(formattedValues);
-
-                const newAccount = {
-                    id: Math.max(...accounts.map(a => a.id), 0) + 1,
-                    ...formattedValues,
-                    isBlocked: false,
-                    ...(activeTab === 'customer' && { bookingCount: 0 })
-                };
-                setAccounts([...accounts, newAccount]);
-                message.success('Tạo tài khoản thành công');
+                const createdAccount = await createNewEmployee(requestData);
+                setAccounts([...accounts, createdAccount]);
             }
 
             setIsModalVisible(false);
@@ -197,14 +117,6 @@ const AccountManagement = () => {
             key: 'phone',
         },
         {
-            title: 'Ca làm việc',
-            dataIndex: 'times',
-            key: 'times',
-            render: times => times?.map(time => (
-                <Tag key={time}>{timeSlots.find(t => t.value === time)?.label || time}</Tag>
-            ))
-        },
-        {
             title: 'Trạng thái',
             key: 'isBlocked',
             render: (_, record) => (
@@ -223,7 +135,6 @@ const AccountManagement = () => {
                         onClick={() => {
                             form.setFieldsValue({
                                 role: record.role,
-                                times: record.times,
                                 account: {
                                     ...record.account,
                                     createdAt: record.account.createdAt ? dayjs(record.account.createdAt) : null
@@ -237,12 +148,12 @@ const AccountManagement = () => {
                         icon={record.isBlocked ? <UnlockOutlined /> : <LockOutlined />}
                         onClick={() => handleToggleStatus(record.id)}
                     />
-                    <Popconfirm
+                    {/* <Popconfirm
                         title="Xác nhận xóa vĩnh viễn?"
                         onConfirm={() => handleDelete(record.id)}
                     >
                         <Button danger icon={<DeleteOutlined />} />
-                    </Popconfirm>
+                    </Popconfirm> */}
                 </Space>
             ),
         },
@@ -293,13 +204,6 @@ const AccountManagement = () => {
         },
     ];
 
-    const normFile = (e) => {
-        if (Array.isArray(e)) {
-            return e;
-        }
-        return e?.fileList;
-    };
-
     const filteredAccounts = accounts.filter(account =>
         account.type === (activeTab === 'staff' ? 'STAFF' : 'CUSTOMER')
     );
@@ -325,12 +229,7 @@ const AccountManagement = () => {
 
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
                 <TabPane
-                    tab={
-                        <span>
-                            <TeamOutlined />
-                            Nhân viên
-                        </span>
-                    }
+                    tab={<span><TeamOutlined />Nhân viên</span>}
                     key="staff"
                 >
                     <Table
@@ -342,12 +241,7 @@ const AccountManagement = () => {
                     />
                 </TabPane>
                 <TabPane
-                    tab={
-                        <span>
-                            <UserOutlined />
-                            Khách hàng
-                        </span>
-                    }
+                    tab={<span><UserOutlined />Khách hàng</span>}
                     key="customer"
                 >
                     <Table
@@ -360,7 +254,6 @@ const AccountManagement = () => {
                 </TabPane>
             </Tabs>
 
-            {/* Staff Account Modal */}
             <Modal
                 title={editingId ? 'Cập nhật tài khoản' : 'Thêm tài khoản nhân viên'}
                 visible={isModalVisible && activeTab === 'staff'}
@@ -431,17 +324,6 @@ const AccountManagement = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                name="times"
-                                label="Ca làm việc"
-                            >
-                                <Select mode="multiple" options={timeSlots} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
                                 name={['account', 'age']}
                                 label="Tuổi"
                                 rules={[
@@ -449,10 +331,13 @@ const AccountManagement = () => {
                                     { type: 'number', min: 18, max: 60, message: 'Tuổi phải từ 18 đến 60' }
                                 ]}
                             >
-                                <Input type="number" />
+                                <InputNumber style={{ width: '100%' }} />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={24}>
                             <Form.Item
                                 name={['account', 'address']}
                                 label="Địa chỉ"
@@ -462,17 +347,6 @@ const AccountManagement = () => {
                             </Form.Item>
                         </Col>
                     </Row>
-
-                    <Form.Item
-                        name={['account', 'avatar']}
-                        label="Ảnh đại diện"
-                        valuePropName="fileList"
-                        getValueFromEvent={normFile}
-                    >
-                        <Upload name="avatar" listType="picture" beforeUpload={() => false}>
-                            <Button icon={<UploadOutlined />}>Tải lên</Button>
-                        </Upload>
-                    </Form.Item>
 
                     {!editingId && (
                         <>
