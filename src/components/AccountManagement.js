@@ -23,9 +23,16 @@ const roleOptions = [
     { value: 1, label: 'Nhân viên spa' },
 ];
 
-
 const AccountManagement = () => {
-    const { getAccounts, managementState, createNewEmployee } = useManagementService();
+    const {
+        getAccounts,
+        managementState,
+        createNewEmployee,
+        updateAccount,
+        deleteAccount,
+        toggleAccountStatus
+    } = useManagementService();
+
     const [accounts, setAccounts] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -45,52 +52,66 @@ const AccountManagement = () => {
                 account.type === (activeTab === 'staff' ? 'STAFF' : 'CUSTOMER')
             );
             setAccounts(filtered);
-            setLoading(false);
         } catch (error) {
             message.error('Lỗi khi tải dữ liệu');
-            setLoading(false);
-        }
-    };
-    console.log(accounts);
-
-    const handleToggleStatus = async (id) => {
-        try {
-            setLoading(true);
-            // await toggleAccountStatus(id);
-            setAccounts(accounts.map(account =>
-                account.id === id ? { ...account, isBlocked: !account.isBlocked } : account
-            ));
-            message.success('Cập nhật trạng thái thành công');
-        } catch (error) {
-            message.error('Lỗi khi cập nhật trạng thái');
         } finally {
             setLoading(false);
         }
     };
 
+    const handleToggleStatus = async (id) => {
+        try {
+            setLoading(true);
+            await toggleAccountStatus(id);
+            setAccounts(accounts.map(account =>
+                account.id === id ? { ...account, isBlocked: !account.isBlocked } : account
+            ));
+            message.success('Cập nhật trạng thái thành công');
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            setLoading(true);
+            await deleteAccount(id);
+            setAccounts(accounts.filter(account => account.id !== id));
+            message.success('Xóa tài khoản thành công');
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Lỗi khi xóa tài khoản');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleFormSubmit = async () => {
         try {
             const values = await form.validateFields();
-
             const requestData = {
-                ...values,
-                type: values.role,
-                age: values.age,
+                ...values.account,
+                role: values.role,
+                type: 'STAFF'
             };
 
             if (editingId) {
-                // Logic update (nếu cần)
+                const updatedAccount = await updateAccount(editingId, requestData);
+                setAccounts(accounts.map(acc =>
+                    acc.id === editingId ? { ...acc, ...updatedAccount } : acc
+                ));
+                message.success('Cập nhật tài khoản thành công');
             } else {
                 const createdAccount = await createNewEmployee(requestData);
                 setAccounts([...accounts, createdAccount]);
+                message.success('Tạo tài khoản thành công');
             }
 
             setIsModalVisible(false);
             form.resetFields();
         } catch (error) {
-            console.error(error);
-            message.error('Vui lòng kiểm tra lại thông tin');
+            message.error(error.response?.data?.message || 'Vui lòng kiểm tra lại thông tin');
         }
     };
 
@@ -99,6 +120,7 @@ const AccountManagement = () => {
             title: 'Họ tên',
             dataIndex: ['account', 'fullName'],
             key: 'fullName',
+            sorter: (a, b) => a.account.fullName.localeCompare(b.account.fullName),
         },
         {
             title: 'Tên đăng nhập',
@@ -109,7 +131,9 @@ const AccountManagement = () => {
             title: 'Vai trò',
             dataIndex: 'role',
             key: 'role',
-            render: role => roleOptions.find(r => r.value === role)?.label || role
+            render: role => roleOptions.find(r => r.value === role)?.label || role,
+            filters: roleOptions.map(r => ({ text: r.label, value: r.value })),
+            onFilter: (value, record) => record.role === value,
         },
         {
             title: 'SĐT',
@@ -136,8 +160,12 @@ const AccountManagement = () => {
                             form.setFieldsValue({
                                 role: record.role,
                                 account: {
-                                    ...record.account,
-                                    createdAt: record.account.createdAt ? dayjs(record.account.createdAt) : null
+                                    fullName: record.account.fullName,
+                                    userName: record.account.userName,
+                                    email: record.account.email,
+                                    phone: record.account.phone,
+                                    age: record.account.age,
+                                    address: record.account.address
                                 }
                             });
                             setEditingId(record.id);
@@ -204,9 +232,6 @@ const AccountManagement = () => {
         },
     ];
 
-    const filteredAccounts = accounts.filter(account =>
-        account.type === (activeTab === 'staff' ? 'STAFF' : 'CUSTOMER')
-    );
 
     return (
         <div className="management-container">
@@ -228,39 +253,59 @@ const AccountManagement = () => {
             </div>
 
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                <TabPane
-                    tab={<span><TeamOutlined />Nhân viên</span>}
-                    key="staff"
-                >
+                <TabPane tab={<span><TeamOutlined />Nhân viên</span>} key="staff">
                     <Table
                         columns={staffColumns}
-                        dataSource={filteredAccounts}
+                        dataSource={accounts.filter(a => a.type === 'STAFF')}
                         rowKey="id"
                         loading={loading}
-                        pagination={{ pageSize: 8 }}
+                        pagination={{
+                            pageSize: 8,
+                            showSizeChanger: false
+                        }}
+                        bordered
+                        scroll={{ x: 1200 }}
                     />
                 </TabPane>
-                <TabPane
-                    tab={<span><UserOutlined />Khách hàng</span>}
-                    key="customer"
-                >
+
+                <TabPane tab={<span><UserOutlined />Khách hàng</span>} key="customer">
                     <Table
                         columns={customerColumns}
-                        dataSource={filteredAccounts}
+                        dataSource={accounts.filter(a => a.type === 'CUSTOMER')}
                         rowKey="id"
                         loading={loading}
-                        pagination={{ pageSize: 8 }}
+                        pagination={{
+                            pageSize: 8,
+                            showSizeChanger: false
+                        }}
+                        bordered
                     />
                 </TabPane>
             </Tabs>
 
             <Modal
                 title={editingId ? 'Cập nhật tài khoản' : 'Thêm tài khoản nhân viên'}
-                visible={isModalVisible && activeTab === 'staff'}
+                visible={isModalVisible}
                 onOk={handleFormSubmit}
-                onCancel={() => setIsModalVisible(false)}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    form.resetFields();
+                }}
                 width={800}
                 destroyOnClose
+                footer={[
+                    <Button key="back" onClick={() => setIsModalVisible(false)}>
+                        Hủy
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        loading={managementState.loading}
+                        onClick={handleFormSubmit}
+                    >
+                        {editingId ? 'Cập nhật' : 'Tạo mới'}
+                    </Button>,
+                ]}
             >
                 <Form form={form} layout="vertical" preserve={false}>
                     <h3>Thông tin tài khoản</h3>
@@ -269,18 +314,30 @@ const AccountManagement = () => {
                             <Form.Item
                                 name={['account', 'fullName']}
                                 label="Họ tên"
-                                rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+                                rules={[{
+                                    required: true,
+                                    message: 'Vui lòng nhập họ tên',
+                                    whitespace: true
+                                }]}
                             >
-                                <Input />
+                                <Input placeholder="Nguyễn Văn A" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 name={['account', 'userName']}
                                 label="Tên đăng nhập"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập' }]}
+                                rules={[{
+                                    required: true,
+                                    message: 'Vui lòng nhập tên đăng nhập',
+                                    pattern: /^[a-zA-Z0-9_]+$/,
+                                    message: 'Chỉ cho phép chữ, số và dấu gạch dưới'
+                                }]}
                             >
-                                <Input disabled={!!editingId} />
+                                <Input
+                                    placeholder="hieunguyen"
+                                    disabled={!!editingId}
+                                />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -362,7 +419,7 @@ const AccountManagement = () => {
                                             { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự' }
                                         ]}
                                     >
-                                        <Input.Password />
+                                        <Input.Password placeholder="••••••" />
                                     </Form.Item>
                                 </Col>
                                 <Col span={12}>
@@ -382,7 +439,7 @@ const AccountManagement = () => {
                                             }),
                                         ]}
                                     >
-                                        <Input.Password />
+                                        <Input.Password placeholder="••••••" />
                                     </Form.Item>
                                 </Col>
                             </Row>

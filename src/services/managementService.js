@@ -24,7 +24,7 @@ const useManagementService = () => {
                 throw new Error(errorMsg);
             }
         } catch (error) {
-            message.error(error.message);
+            // message.error(error.message);
             throw error;
         }
     };
