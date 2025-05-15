@@ -28,9 +28,8 @@ const AccountManagement = () => {
         getAccounts,
         managementState,
         createNewEmployee,
-        updateAccount,
-        deleteAccount,
-        toggleAccountStatus
+        updateExistingEmployee,
+        changeBlockStatus
     } = useManagementService();
 
     const [accounts, setAccounts] = useState([]);
@@ -43,6 +42,25 @@ const AccountManagement = () => {
     useEffect(() => {
         fetchData();
     }, [activeTab]);
+
+    useEffect(() => {
+        if (isModalVisible && editingId) {
+            const accountToEdit = accounts.find(acc => acc.id === editingId);
+            if (accountToEdit) {
+                form.setFieldsValue({
+                    role: accountToEdit.role,
+                    account: {
+                        fullName: accountToEdit.account?.fullName || '',
+                        userName: accountToEdit.account?.userName || '',
+                        email: accountToEdit.account?.email || '',
+                        phone: accountToEdit.account?.phone || '',
+                        age: accountToEdit.account?.age || 18,
+                        address: accountToEdit.account?.address || '',
+                    }
+                });
+            }
+        }
+    }, [isModalVisible, editingId, accounts, form]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -59,29 +77,39 @@ const AccountManagement = () => {
         }
     };
 
-    const handleToggleStatus = async (id) => {
+    console.log('accounts', accounts);
+
+
+    const handleEditClick = (record) => {
+        setEditingId(record.id);
+        setIsModalVisible(true);
+
+        // Đợi modal render xong mới set giá trị
+        setTimeout(() => {
+            form.setFieldsValue({
+                role: record.role,
+                account: {
+                    fullName: record.account?.fullName || '',
+                    userName: record.account?.userName || '',
+                    email: record.account?.email || '',
+                    phone: record.account?.phone || '',
+                    age: record.account?.age || 18,
+                    address: record.account?.address || '',
+                }
+            });
+        }, 100);
+    };
+
+
+    const handleToggleStatus = async (id, currentStatus) => {
         try {
             setLoading(true);
-            await toggleAccountStatus(id);
+            await changeBlockStatus(id, !currentStatus);
             setAccounts(accounts.map(account =>
                 account.id === id ? { ...account, isBlocked: !account.isBlocked } : account
             ));
-            message.success('Cập nhật trạng thái thành công');
         } catch (error) {
-            message.error(error.response?.data?.message || 'Lỗi khi cập nhật trạng thái');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        try {
-            setLoading(true);
-            await deleteAccount(id);
-            setAccounts(accounts.filter(account => account.id !== id));
-            message.success('Xóa tài khoản thành công');
-        } catch (error) {
-            message.error(error.response?.data?.message || 'Lỗi khi xóa tài khoản');
+            message.error(error.message || 'Lỗi khi cập nhật trạng thái');
         } finally {
             setLoading(false);
         }
@@ -90,14 +118,20 @@ const AccountManagement = () => {
     const handleFormSubmit = async () => {
         try {
             const values = await form.validateFields();
+
+            const typeMapping = {
+                STAFF: 0,
+                CUSTOMER: 1
+            };
+
             const requestData = {
                 ...values.account,
                 role: values.role,
-                type: 'STAFF'
+                type: typeMapping[activeTab.toUpperCase()],
             };
 
             if (editingId) {
-                const updatedAccount = await updateAccount(editingId, requestData);
+                const updatedAccount = await updateExistingEmployee(editingId, requestData);
                 setAccounts(accounts.map(acc =>
                     acc.id === editingId ? { ...acc, ...updatedAccount } : acc
                 ));
@@ -111,7 +145,7 @@ const AccountManagement = () => {
             setIsModalVisible(false);
             form.resetFields();
         } catch (error) {
-            message.error(error.response?.data?.message || 'Vui lòng kiểm tra lại thông tin');
+            message.error(error.message || 'Lỗi khi xử lý dữ liệu');
         }
     };
 
@@ -154,37 +188,19 @@ const AccountManagement = () => {
             key: 'actions',
             render: (_, record) => (
                 <Space>
-                    <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                            form.setFieldsValue({
-                                role: record.role,
-                                account: {
-                                    fullName: record.account.fullName,
-                                    userName: record.account.userName,
-                                    email: record.account.email,
-                                    phone: record.account.phone,
-                                    age: record.account.age,
-                                    address: record.account.address
-                                }
-                            });
-                            setEditingId(record.id);
-                            setIsModalVisible(true);
-                        }}
-                    />
+                    {activeTab === 'staff' && (
+                        <Button
+                            icon={<EditOutlined />}
+                            onClick={() => handleEditClick(record)}
+                        />
+                    )}
                     <Button
                         icon={record.isBlocked ? <UnlockOutlined /> : <LockOutlined />}
-                        onClick={() => handleToggleStatus(record.id)}
+                        onClick={() => handleToggleStatus(record.id, record.isBlocked)}
                     />
-                    {/* <Popconfirm
-                        title="Xác nhận xóa vĩnh viễn?"
-                        onConfirm={() => handleDelete(record.id)}
-                    >
-                        <Button danger icon={<DeleteOutlined />} />
-                    </Popconfirm> */}
                 </Space>
             ),
-        },
+        }
     ];
 
     const customerColumns = [
@@ -285,14 +301,15 @@ const AccountManagement = () => {
 
             <Modal
                 title={editingId ? 'Cập nhật tài khoản' : 'Thêm tài khoản nhân viên'}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onOk={handleFormSubmit}
                 onCancel={() => {
                     setIsModalVisible(false);
                     form.resetFields();
                 }}
                 width={800}
-                destroyOnClose
+                forceRender
+                destroyOnClose={false}
                 footer={[
                     <Button key="back" onClick={() => setIsModalVisible(false)}>
                         Hủy
@@ -307,7 +324,21 @@ const AccountManagement = () => {
                     </Button>,
                 ]}
             >
-                <Form form={form} layout="vertical" preserve={false}>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    initialValues={{
+                        role: 0,
+                        account: {
+                            fullName: '',
+                            userName: '',
+                            email: '',
+                            phone: '',
+                            age: 18,
+                            address: ''
+                        }
+                    }}
+                >
                     <h3>Thông tin tài khoản</h3>
                     <Row gutter={16}>
                         <Col span={12}>

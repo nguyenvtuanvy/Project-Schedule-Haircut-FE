@@ -4,7 +4,9 @@ import {
     fetchServices,
     fetchCombos,
     createEmployee,
-    clearManagementError
+    updateEmployee,
+    clearManagementError,
+    changeBlock
 } from '../stores/slices/managementSlice';
 import { message } from 'antd';
 
@@ -81,12 +83,49 @@ const useManagementService = () => {
         }
     };
 
+    const updateExistingEmployee = async (id, employeeData) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(updateEmployee({ id, employeeData }));
+
+            if (updateEmployee.fulfilled.match(resultAction)) {
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload;
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            throw error;
+        }
+    };
+
+    const changeBlockStatus = async (id, isBlocked) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(changeBlock({ id, isBlocked }));
+
+            if (changeBlock.fulfilled.match(resultAction)) {
+                message.success(`Tài khoản đã được ${isBlocked ? 'chặn' : 'mở chặn'} thành công`);
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Cập nhật trạng thái tài khoản thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            // message.error(error.message);
+            throw error;
+        }
+    };
+
+
 
     return {
         getAccounts,
         getServices,
         getCombos,
         createNewEmployee,
+        updateExistingEmployee,
+        changeBlockStatus,
         managementState,
     };
 };

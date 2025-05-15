@@ -50,6 +50,33 @@ export const createEmployee = createAsyncThunk(
     }
 );
 
+export const updateEmployee = createAsyncThunk(
+    'management/updateEmployee',
+    async ({ id, employeeData }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.put(`/admin/updated/${id}`, employeeData);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+export const changeBlock = createAsyncThunk(
+    'management/changeBlock',
+    async ({ id, isBlocked }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.put(`/admin/change-block/${id}`, null, {
+                params: { isBlocked }
+            });
+            return { id, isBlocked };
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+
 
 const initialState = {
     accounts: [],
@@ -66,7 +93,13 @@ const managementSlice = createSlice({
         clearManagementError: (state) => {
             state.error = null;
         },
-        resetManagementState: () => initialState
+        resetManagementState: () => initialState,
+        updateEmployeeLocally: (state, action) => {
+            const updatedEmployee = action.payload;
+            state.accounts = state.accounts.map(account =>
+                account.id === updatedEmployee.id ? updatedEmployee : account
+            );
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -93,29 +126,55 @@ const managementSlice = createSlice({
                 state.loading = false;
             })
 
+            // Update Employee
+            .addCase(updateEmployee.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+
+            // Change Block
+            .addCase(changeBlock.fulfilled, (state, action) => {
+                const { id, isBlocked } = action.payload;
+                const accountIndex = state.accounts.findIndex(account => account.id === id);
+                if (accountIndex !== -1) {
+                    state.accounts[accountIndex].isBlocked = isBlocked;
+                }
+                state.loading = false;
+            })
+
+
+
             // Common loading
             .addMatcher(
                 (action) =>
                     action.type.endsWith('/pending') &&
-                    ['management/fetchAccounts', 'management/fetchServices', 'management/fetchCombos', 'management/createEmployee'].some((type) =>
-                        action.type.startsWith(type)
-                    ),
+                    [
+                        'management/fetchAccounts',
+                        'management/fetchServices',
+                        'management/fetchCombos',
+                        'management/createEmployee',
+                        'management/updateEmployee',
+                        'management/changeBlock'
+                    ].some((type) => action.type.startsWith(type)),
                 (state) => {
                     state.loading = true;
                     state.error = null;
                 }
             )
 
-            // Common error handling
             .addMatcher(
                 (action) =>
                     action.type.endsWith('/rejected') &&
-                    ['management/fetchAccounts', 'management/fetchServices', 'management/fetchCombos', 'management/createEmployee'].some((type) =>
-                        action.type.startsWith(type)
-                    ),
+                    [
+                        'management/fetchAccounts',
+                        'management/fetchServices',
+                        'management/fetchCombos',
+                        'management/createEmployee',
+                        'management/updateEmployee',
+                        'management/changeBlock'
+                    ].some((type) => action.type.startsWith(type)),
                 (state, action) => {
                     state.loading = false;
-                    state.error = action.payload || 'An error occurred';
+                    state.error = action.payload;
                 }
             );
     }
