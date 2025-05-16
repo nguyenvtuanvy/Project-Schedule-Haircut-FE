@@ -76,12 +76,53 @@ export const changeBlock = createAsyncThunk(
     }
 );
 
+export const fetchAllTimes = createAsyncThunk(
+    'management/fetchTimes',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.get('/admin/times');
+            console.log(response);
 
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const addTimeForEmployee = createAsyncThunk(
+    'management/addTimeForEmployee',
+    async ({ timeId, employeeId }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.post('/admin/addTime', {
+                timeId, employeeId
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const removeTimeFromEmployee = createAsyncThunk(
+    'management/removeTimeFromEmployee',
+    async ({ timeId, employeeId }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.delete('/admin/removeTime', {
+                data: { timeId, employeeId }
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
 
 const initialState = {
     accounts: [],
     services: [],
     combos: [],
+    times: [],
     loading: false,
     error: null
 };
@@ -141,6 +182,21 @@ const managementSlice = createSlice({
                 state.loading = false;
             })
 
+            // Fetch All Times
+            .addCase(fetchAllTimes.fulfilled, (state, action) => {
+                state.loading = false;
+                state.times = action.payload;
+            })
+
+            // Add Time for Employee
+            .addCase(addTimeForEmployee.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+
+            // Remove Time from Employee
+            .addCase(removeTimeFromEmployee.fulfilled, (state, action) => {
+                state.loading = false;
+            })
 
 
             // Common loading
@@ -153,7 +209,10 @@ const managementSlice = createSlice({
                         'management/fetchCombos',
                         'management/createEmployee',
                         'management/updateEmployee',
-                        'management/changeBlock'
+                        'management/changeBlock',
+                        'management/fetchTimes',
+                        'management/addTimeForEmployee',
+                        'management/removeTimeFromEmployee'
                     ].some((type) => action.type.startsWith(type)),
                 (state) => {
                     state.loading = true;
@@ -170,7 +229,10 @@ const managementSlice = createSlice({
                         'management/fetchCombos',
                         'management/createEmployee',
                         'management/updateEmployee',
-                        'management/changeBlock'
+                        'management/changeBlock',
+                        'management/fetchTimes',
+                        'management/addTimeForEmployee',
+                        'management/removeTimeFromEmployee'
                     ].some((type) => action.type.startsWith(type)),
                 (state, action) => {
                     state.loading = false;

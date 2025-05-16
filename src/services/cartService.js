@@ -36,7 +36,7 @@ const useCartService = () => {
         try {
             dispatch(clearCartError());
             await dispatch(addComboToCart(comboData)).unwrap();
-            toast.success('Thêm combo thành công');
+            // toast.success('Thêm combo thành công');
             fetchItemCount();
             return true;
         } catch (error) {
@@ -49,7 +49,7 @@ const useCartService = () => {
         try {
             dispatch(clearCartError());
             await dispatch(addServiceToCart(serviceData)).unwrap();
-            toast.success('Thêm dịch vụ thành công');
+            // toast.success('Thêm dịch vụ thành công');
             fetchItemCount();
             return true;
         } catch (error) {

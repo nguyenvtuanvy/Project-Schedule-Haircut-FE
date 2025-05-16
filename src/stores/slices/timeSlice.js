@@ -16,6 +16,7 @@ export const fetchTimes = createAsyncThunk(
     }
 );
 
+
 const timeSlice = createSlice({
     name: 'time',
     initialState: {
@@ -34,17 +35,19 @@ const timeSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchTimes.pending, (state) => {
-                state.loading = true;  // Set loading to true when the request is pending
+                state.loading = true;
                 state.error = null;
             })
             .addCase(fetchTimes.fulfilled, (state, action) => {
-                state.loading = false;  // Set loading to false when the request is fulfilled
+                state.loading = false;
                 state.times = action.payload;
             })
             .addCase(fetchTimes.rejected, (state, action) => {
-                state.loading = false;  // Set loading to false when the request is rejected
-                state.error = action.payload || 'Failed to fetch times';
+                state.loading = false;
+                state.error = action.payload;
             });
+
+
     },
 });
 

@@ -6,7 +6,10 @@ import {
     createEmployee,
     updateEmployee,
     clearManagementError,
-    changeBlock
+    changeBlock,
+    fetchAllTimes,
+    addTimeForEmployee,
+    removeTimeFromEmployee,
 } from '../stores/slices/managementSlice';
 import { message } from 'antd';
 
@@ -117,7 +120,58 @@ const useManagementService = () => {
         }
     };
 
+    const getAllTimes = async () => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(fetchAllTimes());
 
+            if (fetchAllTimes.fulfilled.match(resultAction)) {
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Failed to fetch all times';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            // message.error(error.message);
+            throw error;
+        }
+    };
+
+    const addTime = async (timeId, employeeId) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(addTimeForEmployee({ timeId, employeeId }));
+
+            if (addTimeForEmployee.fulfilled.match(resultAction)) {
+                message.success('Thêm giờ làm thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Thêm giờ làm thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            // message.error(error.message);
+            throw error;
+        }
+    };
+
+    const removeTime = async (timeId, employeeId) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(removeTimeFromEmployee({ timeId, employeeId }));
+
+            if (removeTimeFromEmployee.fulfilled.match(resultAction)) {
+                message.success('Xóa giờ làm thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Xóa giờ làm thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            // message.error(error.message);
+            throw error;
+        }
+    };
 
     return {
         getAccounts,
@@ -126,6 +180,9 @@ const useManagementService = () => {
         createNewEmployee,
         updateExistingEmployee,
         changeBlockStatus,
+        getAllTimes,
+        addTime,
+        removeTime,
         managementState,
     };
 };

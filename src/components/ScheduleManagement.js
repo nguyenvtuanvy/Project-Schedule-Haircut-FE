@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Select, Button, TimePicker, message, List, Spin, Card, Tag } from 'antd';
+import { Select, Button, message, List, Spin, Card, Tag } from 'antd';
 import { PlusOutlined, ScheduleOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import '../assets/css/Management.css';
 import useManagementService from '../services/managementService';
 
 const ScheduleManagement = () => {
-    const { getAccounts, managementState } = useManagementService();
+    const { getAccounts, getAllTimes, managementState, addTime, removeTime } = useManagementService();
     const [staffMembers, setStaffMembers] = useState([]);
     const [staffTimes, setStaffTimes] = useState({});
     const [selectedStaff, setSelectedStaff] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
+    const [availableTimes, setAvailableTimes] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        const fetchStaffData = async () => {
+        const fetchInitialData = async () => {
             try {
                 setLoading(true);
-                const response = await getAccounts();
 
-                const staffData = response.reduce((acc, staff) => {
+                // Fetch staff accounts
+                const staffResponse = await getAccounts();
+                const staffData = staffResponse.reduce((acc, staff) => {
                     if (staff.type === "STAFF") {
                         acc.members.push({
                             id: staff.id,
                             name: staff.account.fullName,
                         });
-                        acc.times[staff.id] = staff.times;
+                        acc.times[staff.id] = staff.times || [];
                     }
                     return acc;
                 }, { members: [], times: {} });
@@ -33,18 +35,22 @@ const ScheduleManagement = () => {
                 setStaffMembers(staffData.members);
                 setStaffTimes(staffData.times);
 
+                const timesResponse = await getAllTimes();
+                setAvailableTimes(timesResponse);
+
             } catch (error) {
-                message.error("Lỗi tải dữ liệu nhân viên");
+                message.error("Lỗi tải dữ liệu");
+                console.error("Fetch data error:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStaffData();
+        fetchInitialData();
     }, []);
+    console.log(availableTimes);
+    console.log(selectedTime);
 
-    const disabledHours = () => [...Array(24).keys()].filter(h => h < 8 || h > 17);
-    const disabledMinutes = () => [...Array(60).keys()].filter(m => m % 30 !== 0);
 
     const handleAddTime = async () => {
         if (!selectedStaff || !selectedTime) {
@@ -52,30 +58,55 @@ const ScheduleManagement = () => {
             return;
         }
 
-        const newTime = selectedTime.format('HH:mm');
-        const currentTimes = staffTimes[selectedStaff] || [];
-
-        if (currentTimes.includes(newTime)) {
-            message.warning('Giờ làm đã tồn tại');
-            return;
-        }
-
         try {
-            // Giả sử có API endpoint updateStaffTimes
-            // await updateStaffTimes(selectedStaff, [...currentTimes, newTime]);
+            // Tìm time object từ selectedTime (value là timeName)
+            const timeObj = availableTimes.find(t => t.timeName === selectedTime);
 
-            // Cập nhật client-side tạm thời
+            if (!timeObj) {
+                throw new Error('Khung giờ không tồn tại');
+            }
+
+            console.log(timeObj, selectedStaff);
+
+
+            await addTime(timeObj.id, selectedStaff);
+
+            // Cập nhật UI
             setStaffTimes(prev => ({
                 ...prev,
-                [selectedStaff]: [...currentTimes, newTime]
+                [selectedStaff]: [...(prev[selectedStaff] || []), selectedTime]
             }));
 
-            message.success('Thêm giờ làm thành công');
             setSelectedTime(null);
         } catch (error) {
-            message.error('Thêm giờ làm thất bại');
+            message.error(error.message || 'Thêm giờ làm thất bại');
         }
     };
+
+    const handleRemoveTime = async (timeToRemove) => {
+        if (!selectedStaff) return;
+
+        try {
+            // Tìm time object từ timeToRemove (timeName)
+            const timeObj = availableTimes.find(t => t.timeName === timeToRemove);
+            if (!timeObj) {
+                throw new Error('Khung giờ không tồn tại');
+            }
+
+            // Gọi API xóa khung giờ với timeId
+            await removeTime(timeObj.id, selectedStaff);
+
+            // Cập nhật UI
+            setStaffTimes(prev => ({
+                ...prev,
+                [selectedStaff]: prev[selectedStaff].filter(t => t !== timeToRemove)
+            }));
+
+        } catch (error) {
+            message.error(error.message || 'Xóa giờ làm thất bại');
+        }
+    };
+
 
     return (
         <div className="management-container">
@@ -104,24 +135,25 @@ const ScheduleManagement = () => {
                                 optionFilterProp="label"
                                 showSearch
                                 filterOption={(input, option) =>
-                                    option.label.props.children[1].props.children
-                                        .toLowerCase()
-                                        .includes(input.toLowerCase())
+                                    option.label.toLowerCase().includes(input.toLowerCase())
                                 }
                             />
                         </div>
 
                         <div className="time-picker-section">
-                            <TimePicker
-                                format="HH:mm"
-                                value={selectedTime}
-                                onChange={setSelectedTime}
-                                disabledHours={disabledHours}
-                                disabledMinutes={disabledMinutes}
-                                minuteStep={30}
+                            <Select
                                 placeholder="Chọn khung giờ"
                                 style={{ width: '100%' }}
-                                suffixIcon={<ScheduleOutlined />}
+                                value={selectedTime}
+                                onChange={setSelectedTime}
+                                options={availableTimes.map(time => ({
+                                    value: time.timeName,
+                                    label: time.timeName
+                                }))}
+                                showSearch
+                                filterOption={(input, option) =>
+                                    option.label.includes(input)
+                                }
                             />
                         </div>
 
@@ -129,7 +161,7 @@ const ScheduleManagement = () => {
                             type="primary"
                             icon={<PlusOutlined />}
                             onClick={handleAddTime}
-                            disabled={!selectedStaff}
+                            disabled={!selectedStaff || !selectedTime}
                             className="add-button"
                             block
                         >
@@ -159,7 +191,7 @@ const ScheduleManagement = () => {
                                             <Button
                                                 type="link"
                                                 danger
-                                            // onClick={() => handleRemoveTime(time)}
+                                                onClick={() => handleRemoveTime(time)}
                                             >
                                                 Xóa
                                             </Button>
