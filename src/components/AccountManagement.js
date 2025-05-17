@@ -135,10 +135,12 @@ const AccountManagement = () => {
                 setAccounts(accounts.map(acc =>
                     acc.id === editingId ? { ...acc, ...updatedAccount } : acc
                 ));
+                await fetchData();
                 message.success('Cập nhật tài khoản thành công');
             } else {
                 const createdAccount = await createNewEmployee(requestData);
                 setAccounts([...accounts, createdAccount]);
+                await fetchData();
                 message.success('Tạo tài khoản thành công');
             }
 

@@ -2,23 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../assets/css/FloatingWidgets.css';
 import botImg from '../assets/image/bot.jpg';
 import barberImg from '../assets/image/barber.png';
-import { FaArrowUp, FaTimes, FaPaperPlane, FaCut, FaCalendarAlt } from 'react-icons/fa';
+import { FaArrowUp, FaTimes, FaPaperPlane, FaCut } from 'react-icons/fa';
 import CountService from './CountService';
 import { useNavigate } from 'react-router-dom';
 import { SyncLoader } from 'react-spinners';
 import useAIService from '../services/aiService';
 import { toast } from 'react-toastify';
+import { addMessage } from '../stores/slices/aiSlice';
+import { useDispatch } from 'react-redux';
 
 const ChatBox = ({ onClose }) => {
     const [inputMessage, setInputMessage] = useState('');
     const [activeFeature, setActiveFeature] = useState(null);
-    const [bookingStep, setBookingStep] = useState(0);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const dispatch = useDispatch();
 
     const {
         sendMessage,
-        bookAppointment,
         messages,
         isLoading,
         clearChatHistory
@@ -36,65 +37,23 @@ const ChatBox = ({ onClose }) => {
         try {
             if (!inputMessage.trim()) return;
 
-            // Thêm tin nhắn người dùng vào UI ngay lập tức
-            sendMessage({
+            // Thêm tin nhắn người dùng trước khi gửi
+            dispatch(addMessage({
                 text: inputMessage,
                 isBot: false,
                 isError: false
-            }, false);
+            }));
 
-            let response;
-
-            if (activeFeature === 'booking') {
-                // Xử lý từng bước đặt lịch
-                if (bookingStep === 0) {
-                    // Bước 1: Xác nhận dịch vụ
-                    response = await bookAppointment({
-                        service: inputMessage,
-                        step: 'service'
-                    });
-                    setBookingStep(1);
-                } else if (bookingStep === 1) {
-                    // Bước 2: Xác nhận ngày
-                    response = await bookAppointment({
-                        date: inputMessage,
-                        step: 'date'
-                    });
-                    setBookingStep(2);
-                } else if (bookingStep === 2) {
-                    // Bước 3: Xác nhận giờ
-                    response = await bookAppointment({
-                        time: inputMessage,
-                        step: 'time'
-                    });
-                    setBookingStep(3);
-                } else {
-                    // Bước 4: Ghi chú và hoàn tất
-                    response = await bookAppointment({
-                        notes: inputMessage,
-                        step: 'complete'
-                    });
-                    setActiveFeature(null);
-                    setBookingStep(0);
-                }
-            } else {
-                // Chat thông thường hoặc gợi ý kiểu tóc
-                response = await sendMessage({
-                    message: inputMessage,
-                    context: activeFeature
-                });
-            }
-
+            await sendMessage(inputMessage);
             setInputMessage('');
         } catch (error) {
             toast.error(error.message);
         }
     };
 
-    const handleQuickAction = (action) => {
+    const handleQuickAction = async (action) => {
         setActiveFeature(action);
         setInputMessage('');
-        setBookingStep(0);
         inputRef.current.focus();
 
         let message = '';
@@ -102,22 +61,12 @@ const ChatBox = ({ onClose }) => {
             case 'hairstyle':
                 message = "Hãy mô tả khuôn mặt và kiểu tóc hiện tại của bạn (ví dụ: 'Mặt tròn, tóc dày và xoăn')";
                 break;
-            case 'booking':
-                message = "Bạn muốn đặt dịch vụ nào? (Vui lòng chọn hoặc nhập tên dịch vụ)";
-                break;
-            case 'services':
-                message = "Dưới đây là các dịch vụ của chúng tôi:";
-                break;
             default:
                 message = "Tôi có thể giúp gì cho bạn?";
         }
 
-        // Thêm tin nhắn hướng dẫn
-        sendMessage({
-            text: message,
-            isBot: true,
-            isError: false
-        }, false);
+        // Chỉ gửi tin nhắn qua sendMessage, không dispatch trực tiếp
+        await sendMessage(message);
     };
 
     const renderQuickActions = () => (
@@ -125,46 +74,12 @@ const ChatBox = ({ onClose }) => {
             <button
                 onClick={() => handleQuickAction('hairstyle')}
                 className={activeFeature === 'hairstyle' ? 'active' : ''}
+                disabled={isLoading}
             >
                 <FaCut /> Gợi ý kiểu tóc
             </button>
-            <button
-                onClick={() => handleQuickAction('booking')}
-                className={activeFeature === 'booking' ? 'active' : ''}
-            >
-                <FaCalendarAlt /> Đặt lịch
-            </button>
-            <button
-                onClick={() => handleQuickAction('services')}
-                className={activeFeature === 'services' ? 'active' : ''}
-            >
-                <FaCut /> Xem dịch vụ
-            </button>
         </div>
     );
-
-    const renderBookingProgress = () => {
-        const steps = [
-            { label: "1. Chọn dịch vụ", completed: bookingStep > 0 },
-            { label: "2. Chọn ngày", completed: bookingStep > 1 },
-            { label: "3. Chọn giờ", completed: bookingStep > 2 },
-            { label: "4. Hoàn tất", completed: bookingStep > 3 }
-        ];
-
-        return (
-            <div className="booking-progress">
-                {steps.map((step, index) => (
-                    <div
-                        key={index}
-                        className={`step ${step.completed ? 'completed' :
-                            bookingStep === index ? 'active' : ''}`}
-                    >
-                        {step.label}
-                    </div>
-                ))}
-            </div>
-        );
-    };
 
     return (
         <div className="chat-box">
@@ -175,10 +90,11 @@ const ChatBox = ({ onClose }) => {
                         className="clear-btn"
                         onClick={clearChatHistory}
                         title="Xóa lịch sử chat"
+                        disabled={isLoading}
                     >
                         Xóa
                     </button>
-                    <button className="close-btn" onClick={onClose}>
+                    <button className="close-btn" onClick={onClose} disabled={isLoading}>
                         <FaTimes size={16} />
                     </button>
                 </div>
@@ -207,7 +123,16 @@ const ChatBox = ({ onClose }) => {
                         )}
 
                         <div className={`message ${msg.isError ? 'error' : ''}`}>
-                            <span dangerouslySetInnerHTML={{ __html: msg.text }} />
+                            {msg.text.split('\n').map((line, i) => (
+                                <React.Fragment key={i}>
+                                    {line.startsWith('-') ? (
+                                        <div style={{ marginLeft: '15px' }}>{line}</div>
+                                    ) : (
+                                        <div>{line}</div>
+                                    )}
+                                    <br />
+                                </React.Fragment>
+                            ))}
                         </div>
                     </div>
                 ))}
@@ -228,7 +153,6 @@ const ChatBox = ({ onClose }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            {activeFeature === 'booking' && renderBookingProgress()}
             {renderQuickActions()}
 
             <div className="chat-input">
@@ -239,16 +163,12 @@ const ChatBox = ({ onClose }) => {
                     onChange={(e) => setInputMessage(e.target.value)}
                     placeholder={
                         activeFeature === 'hairstyle' ? "Mô tả khuôn mặt/kiểu tóc..." :
-                            activeFeature === 'booking' ?
-                                (bookingStep === 0 ? "Nhập tên dịch vụ..." :
-                                    bookingStep === 1 ? "Nhập ngày (dd/mm/yyyy)..." :
-                                        bookingStep === 2 ? "Nhập giờ (hh:mm)..." :
-                                            "Ghi chú thêm (nếu có)...") :
-                                "Nhập tin nhắn..."
+                            "Nhập tin nhắn..."
                     }
-                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSend()}
+                    disabled={isLoading}
                 />
-                <button onClick={handleSend} disabled={isLoading}>
+                <button onClick={handleSend} disabled={isLoading || !inputMessage.trim()}>
                     <FaPaperPlane />
                 </button>
             </div>
@@ -261,24 +181,10 @@ const FloatingWidgets = () => {
     const navigate = useNavigate();
 
     const scrollToTop = () => {
-        const startingY = window.scrollY;
-        const duration = 1000; // Thời gian cuộn (ms)
-        const startTime = performance.now();
-
-        const easeOutQuad = (t) => t * (2 - t); // Hàm easing để giảm tốc dần
-
-        const animateScroll = (currentTime) => {
-            const elapsedTime = currentTime - startTime;
-            const progress = Math.min(elapsedTime / duration, 1);
-
-            window.scrollTo(0, startingY * (1 - easeOutQuad(progress)));
-
-            if (progress < 1) {
-                requestAnimationFrame(animateScroll);
-            }
-        };
-
-        requestAnimationFrame(animateScroll);
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     };
 
     const handleBarberClick = () => {

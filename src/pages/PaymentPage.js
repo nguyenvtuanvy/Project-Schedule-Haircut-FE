@@ -55,7 +55,8 @@ const PaymentPage = () => {
             if (selectedMethod === 'vnpay') {
                 await initiateVnPayPayment(bookingDetails.totalPrice, bookingId);
             } else if (selectedMethod === 'zalopay') {
-                await initiateZaloPayPayment(bookingDetails.totalPrice, bookingId);
+                // await initiateZaloPayPayment(bookingDetails.totalPrice, bookingId);
+                toast.info('Phương thức ZaloPay đang được phát triển');
             } else if (selectedMethod === 'momo') {
                 // TODO: xử lý momo ở đây nếu bạn làm sau
                 toast.info('Phương thức MoMo đang được phát triển');

@@ -12,7 +12,8 @@ import {
     Form,
     InputNumber,
     Spin,
-    Tag
+    Tag,
+    Upload
 } from 'antd';
 import {
     UploadOutlined,
@@ -28,7 +29,9 @@ const { Search } = Input;
 const { Option } = Select;
 
 const ServiceManagement = () => {
-    const { getServices, getCombos, managementState } = useManagementService();
+    const { getServices, getCombos, managementState, createNewService, updateExistingService, deleteServiceAction,
+        createNewCombo, updateExistingCombo, deleteComboAction
+    } = useManagementService();
     const [services, setServices] = useState([]);
     const [combos, setCombos] = useState([]);
     const [searchText, setSearchText] = useState('');
@@ -55,6 +58,7 @@ const ServiceManagement = () => {
         }
     };
 
+
     const handleSearch = (value) => {
         setSearchText(value);
     };
@@ -63,13 +67,16 @@ const ServiceManagement = () => {
         setSelectedCategory(value);
     };
 
-    const handleDelete = (id) => {
-        if (viewMode === 'service') {
-            setServices(prev => prev.filter(item => item.id !== id));
-            message.success('Xóa dịch vụ thành công');
-        } else {
-            setCombos(prev => prev.filter(item => item.id !== id));
-            message.success('Xóa combo thành công');
+    const handleDelete = async (id) => {
+        try {
+            if (viewMode === 'service') {
+                await deleteServiceAction(id);
+            } else {
+                await deleteComboAction(id);
+            }
+            await fetchData();
+        } catch (error) {
+            console.error('Lỗi khi xóa: ' + error.message);
         }
     };
 
@@ -84,14 +91,19 @@ const ServiceManagement = () => {
         form.setFieldsValue({
             name: record.name,
             price: record.price,
-            ...(viewMode === 'service' && {
+            ...(viewMode === 'service' ? {
                 haircutTime: record.haircutTime,
-                category: record.category?.name,
-            }),
-            ...(viewMode === 'combo' && {
+                categoryId: record.category?.id,
+            } : {
                 services: record.services,
+                categoryId: record.category?.id
             }),
-            image: record.image,
+            image: record.image ? [{
+                uid: '-1',
+                name: 'image.png',
+                status: 'done',
+                url: record.image,
+            }] : [],
         });
         setIsModalOpen(true);
     };
@@ -100,66 +112,56 @@ const ServiceManagement = () => {
         try {
             const values = await form.validateFields();
 
+            const formData = new FormData();
+            formData.append('name', values.name);
+            formData.append('price', values.price);
+            formData.append('categoryId', values.categoryId); // Thêm categoryId cho cả service và combo
+
+            if (viewMode === 'service') {
+                formData.append('haircutTime', values.haircutTime);
+            } else {
+                values.services.forEach((id) => {
+                    formData.append('services', id.toString());
+                });
+            }
+
+            // Xử lý file ảnh
+            if (values.image && values.image[0]?.originFileObj) {
+                formData.append('file', values.image[0].originFileObj);
+            } else if (editingItem?.image) {
+                formData.append('imageUrl', editingItem.image);
+            }
+
             if (viewMode === 'service') {
                 if (editingItem) {
-                    // Update service
-                    setServices(services.map(item =>
-                        item.id === editingItem.id
-                            ? {
-                                ...item,
-                                ...values,
-                                category: {
-                                    id: item.category.id,
-                                    name: values.category
-                                }
-                            }
-                            : item
-                    )
-                    );
-                    message.success('Cập nhật dịch vụ thành công');
+                    await updateExistingService(editingItem.id, formData);
                 } else {
-                    // Add new service
-                    const newService = {
-                        id: Math.max(...services.map(s => s.id), 0) + 1,
-                        ...values,
-                        category: {
-                            id: values.category === 'HAIRCUT' ? 1 : 2,
-                            name: values.category
-                        }
-                    };
-                    setServices([...services, newService]);
-                    message.success('Thêm dịch vụ mới thành công');
+                    await createNewService(formData);
                 }
             } else {
                 if (editingItem) {
-                    // Update combo
-                    setCombos(combos.map(item =>
-                        item.id === editingItem.id
-                            ? { ...item, ...values }
-                            : item
-                    ));
-                    message.success('Cập nhật combo thành công');
+                    await updateExistingCombo(editingItem.id, formData);
                 } else {
-                    // Add new combo
-                    const newCombo = {
-                        id: Math.max(...combos.map(c => c.id), 0) + 1,
-                        ...values
-                    };
-                    setCombos([...combos, newCombo]);
-                    message.success('Thêm combo mới thành công');
+                    await createNewCombo(formData);
                 }
             }
 
+            await fetchData();
+            setIsModalOpen(false);
+
+            await fetchData();
             setIsModalOpen(false);
         } catch (error) {
-            console.error('Validation failed:', error);
+            message.error(error.message || 'Có lỗi xảy ra');
+            console.error('Error:', error);
         }
     };
+
 
     const filteredServices = services.filter(service => {
         const matchName = service.name.toLowerCase().includes(searchText.toLowerCase());
         const matchCategory = selectedCategory
-            ? service.category?.name === selectedCategory
+            ? service.category?.id.toString() === selectedCategory // So sánh ID dạng string
             : true;
         return matchName && matchCategory;
     });
@@ -193,12 +195,19 @@ const ServiceManagement = () => {
         },
         {
             title: 'Danh mục',
-            dataIndex: ['category', 'name'],
-            render: (category) => (
-                <Tag color={category === 'HAIRCUT' ? 'blue' : 'purple'}>
-                    {category}
-                </Tag>
-            ),
+            dataIndex: ['category', 'id'], // Hiển thị id thay vì name
+            render: (categoryId) => {
+                const categoryName = categoryId === 1 ? 'Cắt tóc' :
+                    categoryId === 2 ? 'Uốn tóc' :
+                        categoryId === 3 ? 'Nhuộm tóc' :
+                            categoryId === 4 ? 'Spa & Massage Relax' :
+                                'Khác';
+                return (
+                    <Tag color={categoryId === 1 ? 'blue' : 'purple'}>
+                        {categoryName}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Thao tác',
@@ -239,6 +248,22 @@ const ServiceManagement = () => {
             render: (price) => price.toLocaleString('vi-VN') + ' đ',
             sorter: (a, b) => a.price - b.price,
         },
+        // {
+        //     title: 'Danh mục',
+        //     dataIndex: ['category', 'id'],
+        //     render: (categoryId) => {
+        //         const categoryName = categoryId === 1 ? 'Cắt tóc' :
+        //             categoryId === 2 ? 'Uốn tóc' :
+        //                 categoryId === 3 ? 'Nhuộm tóc' :
+        //                     categoryId === 4 ? 'Spa & Massage Relax' :
+        //                         'Khác';
+        //         return (
+        //             <Tag color={categoryId === 1 ? 'blue' : 'purple'}>
+        //                 {categoryName}
+        //             </Tag>
+        //         );
+        //     },
+        // },
         {
             title: 'Dịch vụ bao gồm',
             dataIndex: 'services',
@@ -320,8 +345,10 @@ const ServiceManagement = () => {
                         onChange={handleCategoryFilter}
                         disabled={managementState.loading}
                     >
-                        <Option value="HAIRCUT">Cắt tóc</Option>
-                        <Option value="SPA">Spa & Chăm sóc</Option>
+                        <Option value="1">Cắt tóc</Option>
+                        <Option value="2">Uốn tóc</Option>
+                        <Option value="3">Nhuộm tóc</Option>
+                        <Option value="4">Spa & Massage Relax</Option>
                     </Select>
                 )}
             </Space>
@@ -385,47 +412,110 @@ const ServiceManagement = () => {
 
                             <Form.Item
                                 label="Danh mục"
-                                name="category"
+                                name="categoryId"
                                 rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                             >
                                 <Select placeholder="Chọn danh mục">
-                                    <Option value="HAIRCUT">Cắt tóc</Option>
-                                    <Option value="SPA">Spa & Chăm sóc</Option>
+                                    <Option value={1}>Cắt tóc</Option>
+                                    <Option value={2}>Uốn tóc</Option>
+                                    <Option value={3}>Nhuộm tóc</Option>
+                                    <Option value={4}>Spa & Massage Relax</Option>
                                 </Select>
                             </Form.Item>
                         </>
                     )}
 
                     {viewMode === 'combo' && (
-                        <Form.Item
-                            label="Dịch vụ bao gồm"
-                            name="services"
-                            rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 dịch vụ!' }]}
-                        >
-                            <Select
-                                mode="multiple"
-                                placeholder="Chọn dịch vụ"
-                                optionFilterProp="children"
-                                showSearch
-                                filterOption={(input, option) =>
-                                    option.children.toLowerCase().includes(input.toLowerCase())
-                                }
+                        <>
+                            <Form.Item
+                                label="Danh mục"
+                                name="categoryId"
+                                rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}
                             >
-                                {services.map(service => (
-                                    <Option key={service.id} value={service.id}>
-                                        {service.name} - {service.price.toLocaleString('vi-VN')}đ
-                                    </Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
+                                <Select placeholder="Chọn danh mục">
+                                    <Option value={1}>Cắt tóc</Option>
+                                    <Option value={2}>Uốn tóc</Option>
+                                    <Option value={3}>Nhuộm tóc</Option>
+                                    <Option value={4}>Spa & Massage Relax</Option>
+                                </Select>
+                            </Form.Item>
+
+                            <Form.Item
+                                label="Dịch vụ bao gồm"
+                                name="services"
+                                rules={[{ required: true, message: 'Vui lòng chọn ít nhất 1 dịch vụ!' }]}
+                            >
+                                <Select
+                                    mode="multiple"
+                                    placeholder="Chọn dịch vụ"
+                                    optionFilterProp="children"
+                                    showSearch
+                                    filterOption={(input, option) =>
+                                        option.children.props.children[0].props.children.toLowerCase().includes(input.toLowerCase())
+                                    }
+                                    optionLabelProp="label"
+                                    style={{ width: '100%' }}
+                                    dropdownRender={(menu) => (
+                                        <div>
+                                            <div style={{ padding: '8px 12px', fontWeight: 500, borderBottom: '1px solid #f0f0f0' }}>
+                                                Danh sách dịch vụ ({services.length})
+                                            </div>
+                                            {menu}
+                                        </div>
+                                    )}
+                                >
+                                    {services.map(service => (
+                                        <Option
+                                            key={service.id}
+                                            value={service.id}
+                                            label={service.name}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <div>
+                                                    <span style={{ fontWeight: 500 }}>{service.name}</span>
+                                                    <div style={{ fontSize: 12, color: '#666' }}>
+                                                        {service.category?.name && `${service.category.name} • `}
+                                                        {service.haircutTime} phút
+                                                    </div>
+                                                </div>
+                                                <div style={{ color: '#1890ff', fontWeight: 500 }}>
+                                                    {service.price.toLocaleString('vi-VN')}đ
+                                                </div>
+                                            </div>
+                                        </Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </>
                     )}
 
                     <Form.Item
                         label="Hình ảnh"
                         name="image"
-                        rules={[{ required: true, message: 'Vui lòng tải ảnh lên!' }]}
+                        valuePropName="fileList"
+                        getValueFromEvent={(e) => {
+                            // Xử lý khi có file được chọn
+                            if (Array.isArray(e)) {
+                                return e;
+                            }
+                            return e && e.fileList;
+                        }}
+                        rules={[{ required: !editingItem, message: 'Vui lòng tải ảnh lên!' }]}
                     >
-                        <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
+                        <Upload
+                            name="file"
+                            listType="picture-card"
+                            beforeUpload={() => false} // Luôn trả về false để tự xử lý upload
+                            maxCount={1}
+                            accept="image/*"
+                        >
+                            {form.getFieldValue('image')?.length >= 1 ? null : (
+                                <div>
+                                    <PlusOutlined />
+                                    <div style={{ marginTop: 8 }}>Tải lên</div>
+                                </div>
+                            )}
+                        </Upload>
                     </Form.Item>
                 </Form>
             </Modal>

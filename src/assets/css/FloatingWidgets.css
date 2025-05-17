@@ -220,6 +220,48 @@
     font-size: 0.9rem;
 }
 
+.message strong {
+    color: #3a86ff;
+    font-weight: 600;
+}
+
+.message ul {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.message li {
+    margin-bottom: 6px;
+    position: relative;
+    padding-left: 20px;
+}
+
+.message li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #ff006e;
+    font-weight: bold;
+}
+
+.message .hair-style {
+    background: #f8f9fa;
+    border-left: 3px solid #3a86ff;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.message {
+    white-space: pre-wrap;
+}
+
+.message br {
+    display: block;
+    content: "";
+    margin-bottom: 8px;
+}
+
 /* Quick Actions - Modern Buttons */
 .quick-actions {
     display: flex;

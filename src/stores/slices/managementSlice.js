@@ -118,6 +118,95 @@ export const removeTimeFromEmployee = createAsyncThunk(
     }
 );
 
+export const createService = createAsyncThunk(
+    'management/createService',
+    async (formData, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.post('/admin/create-service', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const updateService = createAsyncThunk(
+    'management/updateService',
+    async ({ id, formData }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.put(`/admin/services/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const deleteService = createAsyncThunk(
+    'management/deleteService',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.delete(`/admin/services/${id}`);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
+    }
+);
+
+export const createCombo = createAsyncThunk(
+    'management/createCombo',
+    async (formData, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.post('/admin/create-combo', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const updateCombo = createAsyncThunk(
+    'management/updateCombo',
+    async ({ id, formData }, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.put(`/admin/combos/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const deleteCombo = createAsyncThunk(
+    'management/deleteCombo',
+    async (id, { rejectWithValue }) => {
+        try {
+            const response = await axiosClient.delete(`/admin/combos/${id}`);
+            return { id };
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+
 const initialState = {
     accounts: [],
     services: [],
@@ -198,6 +287,40 @@ const managementSlice = createSlice({
                 state.loading = false;
             })
 
+            // Create Service
+            .addCase(createService.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            // Update Service
+            .addCase(updateService.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            // Delete Service
+            .addCase(deleteService.fulfilled, (state, action) => {
+                const { id } = action.payload;
+                state.services = state.services.filter(service => service.id !== id);
+                state.loading = false;
+            })
+
+            // Create Combo
+            .addCase(createCombo.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            // Update Combo
+            .addCase(updateCombo.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            // Delete Combo
+            .addCase(deleteCombo.fulfilled, (state, action) => {
+                const { id } = action.payload;
+                state.combos = state.combos.filter(combo => combo.id !== id);
+                state.loading = false;
+            })
+
 
             // Common loading
             .addMatcher(
@@ -212,7 +335,13 @@ const managementSlice = createSlice({
                         'management/changeBlock',
                         'management/fetchTimes',
                         'management/addTimeForEmployee',
-                        'management/removeTimeFromEmployee'
+                        'management/removeTimeFromEmployee',
+                        'management/createService',
+                        'management/updateService',
+                        'management/deleteService',
+                        'management/createCombo',
+                        'management/updateCombo',
+                        'management/deleteCombo'
                     ].some((type) => action.type.startsWith(type)),
                 (state) => {
                     state.loading = true;
@@ -232,7 +361,13 @@ const managementSlice = createSlice({
                         'management/changeBlock',
                         'management/fetchTimes',
                         'management/addTimeForEmployee',
-                        'management/removeTimeFromEmployee'
+                        'management/removeTimeFromEmployee',
+                        'management/createService',
+                        'management/updateService',
+                        'management/deleteService',
+                        'management/createCombo',
+                        'management/updateCombo',
+                        'management/deleteCombo'
                     ].some((type) => action.type.startsWith(type)),
                 (state, action) => {
                     state.loading = false;

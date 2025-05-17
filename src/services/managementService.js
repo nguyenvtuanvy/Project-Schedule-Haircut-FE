@@ -10,6 +10,12 @@ import {
     fetchAllTimes,
     addTimeForEmployee,
     removeTimeFromEmployee,
+    createService,
+    updateService,
+    deleteService,
+    createCombo,
+    updateCombo,
+    deleteCombo,
 } from '../stores/slices/managementSlice';
 import { message } from 'antd';
 
@@ -173,6 +179,115 @@ const useManagementService = () => {
         }
     };
 
+    const createNewService = async (formData) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(createService(formData));
+
+            if (createService.fulfilled.match(resultAction)) {
+                message.success('Tạo dịch vụ thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Tạo dịch vụ thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            // message.error(error.message);
+            throw error;
+        }
+    };
+
+    const updateExistingService = async (id, formData) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(updateService({ id, formData }));
+
+            if (updateService.fulfilled.match(resultAction)) {
+                message.success('Cập nhật dịch vụ thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Cập nhật dịch vụ thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            message.error(error.message);
+            throw error;
+        }
+    };
+
+    const deleteServiceAction = async (id) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(deleteService(id));
+
+            if (deleteService.fulfilled.match(resultAction)) {
+                message.success('Xóa dịch vụ thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Xóa dịch vụ thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            message.error(error.message);
+            throw error;
+        }
+    };
+
+    const createNewCombo = async (formData) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(createCombo(formData));
+            if (createCombo.fulfilled.match(resultAction)) {
+                message.success('Tạo combo thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Tạo combo thất bại';
+                throw new Error(errorMsg);
+            }
+        }
+        catch (error) {
+            message.error(error.message);
+            throw error;
+        }
+    }
+
+    const updateExistingCombo = async (id, formData) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(updateCombo({ id, formData }));
+
+            if (updateCombo.fulfilled.match(resultAction)) {
+                message.success('Cập nhật combo thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Cập nhật combo thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            message.error(error.message);
+            throw error;
+        }
+    }
+
+    const deleteComboAction = async (id) => {
+        try {
+            dispatch(clearManagementError());
+            const resultAction = await dispatch(deleteCombo(id));
+
+            if (deleteCombo.fulfilled.match(resultAction)) {
+                message.success('Xóa combo thành công');
+                return resultAction.payload;
+            } else {
+                const errorMsg = resultAction.payload?.message || 'Xóa combo thất bại';
+                throw new Error(errorMsg);
+            }
+        } catch (error) {
+            message.error(error.message);
+            throw error;
+        }
+    }
+
+
     return {
         getAccounts,
         getServices,
@@ -183,6 +298,12 @@ const useManagementService = () => {
         getAllTimes,
         addTime,
         removeTime,
+        createNewService,
+        updateExistingService,
+        deleteServiceAction,
+        createNewCombo,
+        updateExistingCombo,
+        deleteComboAction,
         managementState,
     };
 };
