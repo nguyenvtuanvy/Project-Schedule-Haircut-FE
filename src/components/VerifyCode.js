@@ -11,6 +11,7 @@ import {
 import '../assets/css/VerifyCode.css';
 import usePasswordService from '../services/passwordService';
 import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 
 const VerifyCodeForm = ({ onBack, onSuccess }) => {
     const [code, setCode] = useState('');
@@ -25,8 +26,8 @@ const VerifyCodeForm = ({ onBack, onSuccess }) => {
     const { changePassword } = usePasswordService();
 
     const validateForm = () => {
-        if (!code.match(/^\d{6}$/)) {
-            setError('Mã xác thực phải gồm 6 chữ số');
+        if (code.length !== 6) {
+            setError('Mã xác thực phải gồm 6 ký tự');
             return false;
         }
 
@@ -53,9 +54,9 @@ const VerifyCodeForm = ({ onBack, onSuccess }) => {
 
         try {
             await changePassword({ email, code, newPassword });
-            if (onSuccess) onSuccess();
+            onSuccess();
         } catch (err) {
-            setError(err.message || 'Có lỗi xảy ra khi đổi mật khẩu');
+            toast.error(err.message);
         } finally {
             setIsSubmitting(false);
         }
@@ -80,11 +81,9 @@ const VerifyCodeForm = ({ onBack, onSuccess }) => {
                         <FontAwesomeIcon icon={faKey} className="input-icon" />
                         <input
                             type="text"
-                            inputMode="numeric"
-                            pattern="\d*"
-                            placeholder="Nhập mã 6 chữ số"
+                            placeholder="Nhập mã 6 ký tự"
                             value={code}
-                            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                            onChange={(e) => setCode(e.target.value.slice(0, 6))}
                             className="verify-input"
                             required
                             disabled={isSubmitting}

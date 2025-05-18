@@ -9,17 +9,7 @@ export const requestChangePassword = createAsyncThunk(
             const response = await axiosClient.post('/web/password/request-otp', { email });
             return response;
         } catch (error) {
-            // Xử lý lỗi từ server
-            if (error.response) {
-                // Server trả về lỗi với status code 4xx/5xx
-                return rejectWithValue(error.response);
-            } else if (error.request) {
-                // Request được gửi nhưng không nhận được response
-                return rejectWithValue({ message: 'Không nhận được phản hồi từ server' });
-            } else {
-                // Lỗi khi thiết lập request
-                return rejectWithValue({ message: 'Email không tồn tại' });
-            }
+            return rejectWithValue(error.message);
         }
     }
 );
@@ -35,7 +25,7 @@ export const changePassword = createAsyncThunk(
             });
             return response;
         } catch (error) {
-            return rejectWithValue(error || { message: 'Lỗi đổi mật khẩu' });
+            return rejectWithValue(error);
         }
     }
 );

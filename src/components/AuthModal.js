@@ -76,6 +76,7 @@ const AuthModal = () => {
                         key={`verify-${formResetKey}`}
                         onClose={handleCloseModal}
                         onBack={() => handleSwitchForm('login')}
+                        onSuccess={() => handleSwitchForm('login')}
                         {...modalProps}
                     />
                 </div>

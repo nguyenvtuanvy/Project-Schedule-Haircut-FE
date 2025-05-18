@@ -45,8 +45,7 @@ const ForgotPasswordForm = ({ onClose, onBackToLogin, onGoToVerify }) => {
                 onGoToVerify(localEmail);
             }, [2000]);
         } catch (err) {
-            const errorMessage = err?.message || err?.error || 'Có lỗi xảy ra khi gửi yêu cầu';
-            toast.error(errorMessage);
+            toast.error(err);
         }
     };
 
