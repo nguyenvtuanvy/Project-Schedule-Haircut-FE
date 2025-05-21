@@ -66,9 +66,6 @@ const ScheduleManagement = () => {
                 throw new Error('Khung giờ không tồn tại');
             }
 
-            console.log(timeObj, selectedStaff);
-
-
             await addTime(timeObj.id, selectedStaff);
 
             // Cập nhật UI
@@ -79,7 +76,7 @@ const ScheduleManagement = () => {
 
             setSelectedTime(null);
         } catch (error) {
-            message.error(error.message || 'Thêm giờ làm thất bại');
+            message.error(error.message);
         }
     };
 

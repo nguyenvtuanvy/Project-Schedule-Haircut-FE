@@ -6,6 +6,7 @@ import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-i
 import { toast } from 'react-toastify';
 import { useDispatch } from 'react-redux';
 import { initializeAuth } from '../stores/slices/authSlice';
+import useCartService from '../services/cartService';
 
 const LoginForm = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) => {
     const [credentials, setCredentials] = useState({
@@ -16,6 +17,7 @@ const LoginForm = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =>
     const [isLoading, setIsLoading] = useState(false);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const { login } = useAuthService();
+    const { fetchItemCount } = useCartService();
     const dispatch = useDispatch();
 
     React.useEffect(() => {
@@ -50,6 +52,7 @@ const LoginForm = ({ onClose, onSwitchToRegister, onSwitchToForgotPassword }) =>
                 }));
 
                 toast.success('Đăng nhập thành công!');
+                await fetchItemCount();
                 onClose();
             }
         } catch (error) {

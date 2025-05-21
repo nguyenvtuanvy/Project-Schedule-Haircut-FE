@@ -99,7 +99,7 @@ export const addTimeForEmployee = createAsyncThunk(
             });
             return response;
         } catch (error) {
-            return rejectWithValue(error.response?.data || error.message);
+            return rejectWithValue(error);
         }
     }
 );

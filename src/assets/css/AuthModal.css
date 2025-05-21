@@ -89,7 +89,7 @@
 @media (min-width: 1440px) and (max-width: 1919px) {
     .auth-modal-container {
         max-width: 480px;
-        height: 55vh;
+        height: 83vh;
         padding: 2.5rem;
     }
 

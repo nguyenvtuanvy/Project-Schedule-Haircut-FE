@@ -3,12 +3,12 @@ import "../assets/css/Home.css";
 import Footer from "../components/Footer";
 import BarberSlider from "../components/BarberSlider";
 import Header from "../components/Header";
-import bannerImage from "../assets/image/banner.jpg";
+import bannerImage from "../assets/image/banner.png";
 import shineBanner from "../assets/image/shine_banner.jpg";
 import shine1 from "../assets/image/shine1.jpg";
 import shine2 from "../assets/image/shine2.jpg";
 import shine3 from "../assets/image/shine3.jpg";
-import ShineMemberBanner from "../assets/image/shine-member-banner.jpg";
+import ShineMemberBanner from "../assets/image/image.png";
 import Haircut from '../components/Haircut';
 import Spa from '../components/Spa';
 import { useDispatch, useSelector } from 'react-redux';
@@ -57,7 +57,7 @@ const Home = () => {
             </section>
 
             {/* Đặt lịch */}
-            <section className="booking" ref={addToRefs}>
+            {/* <section className="booking" ref={addToRefs}>
                 <div className="booking-box">
                     <h2>Đặt lịch giữ chỗ chỉ 30 giây</h2>
                     <p>Cắt xong trả tiền, hủy lịch không sao</p>
@@ -78,7 +78,7 @@ const Home = () => {
                         <div className="stars">⭐⭐⭐⭐☆</div>
                     </a>
                 </div>
-            </section>
+            </section> */}
 
             {/* Dịch vụ tóc và Spa */}
             <div ref={addToRefs}>

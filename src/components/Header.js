@@ -6,6 +6,7 @@ import logoImage from '../assets/image/logo.png';
 import '../assets/css/Header.css';
 import { useAuth } from '../stores/context/AuthContext';
 import useAuthService from '../services/authService';
+import useCartService from '../services/cartService';
 
 const Header = () => {
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Header = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { username, isAuthenticated } = useAuth();
-
+    const { fetchItemCount } = useCartService();
     const { logout } = useAuthService();
 
     const handleClickOutside = (event) => {
@@ -45,6 +46,7 @@ const Header = () => {
     const handleLogout = async () => {
         try {
             await logout();
+            await fetchItemCount();
             setShowDropdown(false);
         } catch (error) {
             console.error('Logout error:', error);
@@ -85,22 +87,10 @@ const Header = () => {
                             <Link to="/home" className="nav-link">Trang Chủ</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/about" className="nav-link">Về 30Shine</Link>
+                            <Link to="/#" className="nav-link">Về Boss Barber</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/shop" className="nav-link">30Shine Shop</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/locations" className="nav-link">Tìm 30Shine gần nhất</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/franchise" className="nav-link">Nhượng quyền</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/partners" className="nav-link">Đối tác</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link to="/dv-smiles" className="nav-link">Nụ cười DV</Link>
+                            <Link to="/#" className="nav-link">Boss Barber Shop</Link>
                         </li>
                     </ul>
                 </nav>

@@ -29,10 +29,7 @@ const CustomerManagement = () => {
     const handleBlock = async (id) => {
         try {
             setLoading(true);
-            // Gọi API block/unlock ở đây
-            // await blockCustomerAPI(id);
 
-            // Cập nhật UI tạm thời
             setCustomers(customers.map(customer =>
                 customer.id === id ? { ...customer, isBlocked: !customer.isBlocked } : customer
             ));
