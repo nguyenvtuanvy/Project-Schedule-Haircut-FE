@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createVnPayPayment } from '../stores/slices/vnpaySlice';
-// import { updateBookingStatus } from '../stores/slices/bookingSlice';
 import { toast } from 'react-toastify';
 
 const useVnPayService = () => {
@@ -35,19 +34,13 @@ const useVnPayService = () => {
     }, [navigate]);
 
 
-    const extractBookingId = (orderInfo) => {
-        const match = orderInfo.match(/#(\d+)/);
-        return match ? match[1] : null;
-    };
-
     const initiatePayment = useCallback(async (amount, bookingId) => {
         try {
-            const orderInfo = `Payment for booking #${bookingId}`;
+            const orderInfo = `Thanh toán cho đơn hàng #${bookingId}`;
             const result = await dispatch(createVnPayPayment({
                 amount: amount,
                 orderInfo
             })).unwrap();
-            console.log(result);
 
             if (result) {
                 window.location.href = result;
@@ -55,7 +48,7 @@ const useVnPayService = () => {
                 throw new Error('Không nhận được URL thanh toán');
             }
         } catch (error) {
-            toast.error(error.message || 'Lỗi khởi tạo thanh toán');
+            toast.error(error.message);
             throw error;
         }
     }, [dispatch]);

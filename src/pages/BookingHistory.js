@@ -61,8 +61,6 @@ const BookingHistory = () => {
     const handleCancel = async (bookingId, status) => {
         setCancelLoadingId(bookingId);
         try {
-            console.log(bookingId, status);
-
             await cancelOrder(bookingId, status);
 
             const data = await getBookedByStatus(activeStatus);
@@ -72,6 +70,13 @@ const BookingHistory = () => {
         } finally {
             setCancelLoadingId(null);
         }
+    };
+
+    const isWithinOneHour = (orderDate, orderTime) => {
+        const now = new Date();
+        const bookingDateTime = new Date(`${orderDate}T${orderTime}`);
+        const timeDiff = bookingDateTime - now;
+        return timeDiff <= 3600000; // 1h
     };
 
     if (loading) {
@@ -147,7 +152,7 @@ const BookingHistory = () => {
                                     </div>
                                     <div className="price-action">
                                         <span>{booking.totalPrice.toLocaleString()} VNĐ</span>
-                                        {activeStatus === 0 && (
+                                        {activeStatus === 0 && !isWithinOneHour(booking.orderDate, booking.orderStartTime) && (
                                             <button
                                                 onClick={() => handleCancel(booking.id, -1)}
                                                 disabled={cancelLoadingId === booking.id}

@@ -63,7 +63,7 @@ const PaymentPage = () => {
             }
 
         } catch (error) {
-            toast.error(error.message || 'Lỗi thanh toán');
+            // toast.error(error.message || 'Lỗi thanh toán');
         } finally {
             setLoading(false);
         }

@@ -12,18 +12,18 @@ export const createZaloPayPayment = createAsyncThunk(
             });
             return response.data;
         } catch (error) {
-            return rejectWithValue({
-                message: error.response?.data?.message || error.message,
-                code: error.response?.data?.code || 'UNKNOWN_ERROR'
-            });
+            console.log(error);
+
+            return rejectWithValue(error);
         }
     }
 );
 
 const initialState = {
     paymentData: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null
+    isLoading: false, // Thay status bằng isLoading
+    error: null,
+    paymentUrl: null
 };
 
 const zalopaySlice = createSlice({
@@ -31,26 +31,25 @@ const zalopaySlice = createSlice({
     initialState,
     reducers: {
         resetZaloPayState: () => initialState,
-        setZaloPayStatus: (state, action) => {
-            state.status = action.payload;
-        }
+        // Bỏ reducer setZaloPayStatus vì không cần nữa
     },
     extraReducers: (builder) => {
         builder
             .addCase(createZaloPayPayment.pending, (state) => {
-                state.status = 'loading';
+                state.isLoading = true;
                 state.error = null;
             })
             .addCase(createZaloPayPayment.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+                state.isLoading = false;
                 state.paymentData = action.payload;
+                state.paymentUrl = action.payload.data;
             })
             .addCase(createZaloPayPayment.rejected, (state, action) => {
-                state.status = 'failed';
+                state.isLoading = false;
                 state.error = action.payload;
             });
     }
 });
 
-export const { resetZaloPayState, setZaloPayStatus } = zalopaySlice.actions;
+export const { resetZaloPayState } = zalopaySlice.actions;
 export default zalopaySlice.reducer;

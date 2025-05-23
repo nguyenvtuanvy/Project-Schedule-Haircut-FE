@@ -87,10 +87,10 @@ const Header = () => {
                             <Link to="/home" className="nav-link">Trang Chủ</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/#" className="nav-link">Về Boss Barber</Link>
+                            <Link to="/home" className="nav-link">Về Boss Barber</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/#" className="nav-link">Boss Barber Shop</Link>
+                            <Link to="/home" className="nav-link">Boss Barber Shop</Link>
                         </li>
                     </ul>
                 </nav>
@@ -100,7 +100,7 @@ const Header = () => {
                         <div className="user-info" onClick={toggleDropdown} ref={userInfoRef}>
                             <div className="user-dropdown-trigger">
                                 <span>Xin chào, {username}</span>
-                                <span className={`dropdown-arrow ${showDropdown ? 'open' : ''}`}>▼</span>
+                                <span className={`dropdown-arrow-header ${showDropdown ? 'open' : ''}`}>▼</span>
                             </div>
                         </div>
                     ) : (

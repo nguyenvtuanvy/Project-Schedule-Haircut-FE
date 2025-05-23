@@ -33,6 +33,9 @@ const StaffHome = () => {
         loadData();
     }, []);
 
+    console.log(pendingConfirmations);
+    console.log(hourlyAppointments);
+    console.log(bookingStats);
 
 
     useEffect(() => {
@@ -209,6 +212,7 @@ const StaffHome = () => {
                             <tr>
                                 <th className="staff-table-header">Trạng thái</th>
                                 <th className="staff-table-header">Thời gian</th>
+                                <th className="staff-table-header">Ngày đặt lịch</th>
                                 <th className="staff-table-header">Khách hàng</th>
                                 <th className="staff-table-header">Dịch vụ</th>
                                 <th className="staff-table-header">Thao tác</th>
@@ -224,6 +228,8 @@ const StaffHome = () => {
                                     </td>
 
                                     <td className="staff-table-cell">{appointment.time}</td>
+
+                                    <td className="staff-table-cell">{appointment.date}</td>
 
                                     <td className="staff-table-cell">{appointment.customerName}</td>
 

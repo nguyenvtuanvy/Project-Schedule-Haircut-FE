@@ -50,7 +50,9 @@ const useZaloPayService = () => {
                 throw new Error('Không nhận được URL thanh toán');
             }
         } catch (error) {
-            toast.error(error.message || 'Lỗi khởi tạo thanh toán');
+            console.log(error);
+
+            // toast.error(error.message || 'Lỗi khởi tạo thanh toán');
             throw error;
         }
     }, [dispatch]);

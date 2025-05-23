@@ -14,17 +14,14 @@ export const createVnPayPayment = createAsyncThunk(
 
             return response.data;
         } catch (error) {
-            return rejectWithValue({
-                message: error.response?.data?.message || error.message,
-                code: error.response?.data?.code || 'UNKNOWN_ERROR'
-            });
+            return rejectWithValue(error);
         }
     }
 );
 
 const initialState = {
     paymentUrl: null,
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    isLoading: false,
     error: null,
     paymentData: null
 };
@@ -35,22 +32,22 @@ const vnpaySlice = createSlice({
     reducers: {
         resetVnPayState: () => initialState,
         setPaymentStatus: (state, action) => {
-            state.status = action.payload;
+            state.isLoading = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(createVnPayPayment.pending, (state) => {
-                state.status = 'loading';
+                state.isLoading = true;
                 state.error = null;
             })
             .addCase(createVnPayPayment.fulfilled, (state, action) => {
-                state.status = 'succeeded';
+                state.isLoading = false;
                 state.paymentUrl = action.payload.data;
                 state.paymentData = action.payload;
             })
             .addCase(createVnPayPayment.rejected, (state, action) => {
-                state.status = 'failed';
+                state.isLoading = false;
                 state.error = action.payload;
             });
     }

@@ -146,13 +146,13 @@
 }
 
 /* Arrow Animation */
-.dropdown-arrow {
+.dropdown-arrow-header {
     transition: transform 0.3s ease;
     font-size: 0.7rem;
     margin-left: 0.3rem;
 }
 
-.dropdown-arrow.open {
+.dropdown-arrow-header.open {
     transform: rotate(180deg);
 }
 
