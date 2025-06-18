@@ -22,7 +22,7 @@ const BookingDatePicker = ({ selectedDate, onSelect, onNext, onBack }) => {
                 year: 'numeric'
             }).replace(/\//g, ' - ');
 
-            const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+            const isWeekend = date.getDay() === 0 || date.getDay() === 6; 
 
             options.push({
                 dayName,
